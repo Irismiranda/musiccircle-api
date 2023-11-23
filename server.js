@@ -8,14 +8,18 @@ const querystring = require('querystring')
 const http = require('http')
 const functions = require('firebase-functions')
 const admin = require('firebase-admin')
-const { ProjectConfig } = require('firebase-admin/auth')
 
 const port = process.env.PORT
 
 dotenv.config()
 const app = express()
 
-app.use(cors())
+app.use(cors({
+  origin: 'https://musiccircle.onrender.com', // Update with your client's URL
+  methods: ["GET", "POST"],
+  credentials: true
+}))
+
 app.use(express.json())
 
 const server = app.listen(4000, function(){
@@ -24,11 +28,12 @@ const server = app.listen(4000, function(){
 
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: 'https://musiccircle.onrender.com', // Update with your client's URL
     methods: ["GET", "POST"],
     credentials: true
   },
 })
+
   //Spotify Authentication
 
   const spotify_client_id = process.env.SPOTIFY_CLIENT_ID
@@ -57,7 +62,7 @@ const io = socketIo(server, {
       response_type: 'code',
       client_id: spotify_client_id,
       scope: scope,
-      redirect_uri: 'http://localhost:4000/auth/callback',
+      redirect_uri: 'https://musiccircle-api.onrender.com/callback',
       state: state,
     })
 
@@ -72,7 +77,7 @@ const io = socketIo(server, {
     const params = new URLSearchParams()
     params.append('grant_type', 'authorization_code')
     params.append('code', code)
-    params.append('redirect_uri', 'http://localhost:4000/auth/callback')
+    params.append('redirect_uri', 'https://musiccircle-api.onrender.com/auth/callback')
     params.append('client_secret', spotify_client_secret)
 
     const headers = {
@@ -91,7 +96,7 @@ const io = socketIo(server, {
     )
     const {access_token, refresh_token, expires_in} = response.data
     console.log("log - refresh token is:", refresh_token)
-    res.redirect(`http://localhost:5173?access_token=${access_token}&refresh_token=${refresh_token}&expires_in=${expires_in}`)
+    res.redirect(`https://musiccircle.onrender.com?access_token=${access_token}&refresh_token=${refresh_token}&expires_in=${expires_in}`)
   })
 
   app.post('/auth/refresh_token', async (req, res) => {
@@ -360,5 +365,5 @@ app.get('/auth_Ig/callback', async (req, res) => {
   // res.clearCookie('oauth_state')
   // res.clearCookie('user_id')
 
-  res.redirect(`http://localhost:5173?ig_code=${code}`)
+  res.redirect(`https://musiccircle.onrender.com?ig_code=${code}`)
 })
