@@ -57,7 +57,7 @@ const io = socketIo(server, {
       response_type: 'code',
       client_id: spotify_client_id,
       scope: scope,
-      redirect_uri: 'https://localhost:4000/auth/callback',
+      redirect_uri: 'http://localhost:4000/auth/callback',
       state: state,
     })
 
@@ -72,7 +72,7 @@ const io = socketIo(server, {
     const params = new URLSearchParams()
     params.append('grant_type', 'authorization_code')
     params.append('code', code)
-    params.append('redirect_uri', 'https://localhost:4000/auth/callback')
+    params.append('redirect_uri', 'http://localhost:4000/auth/callback')
     params.append('client_secret', spotify_client_secret)
 
     const headers = {
@@ -91,7 +91,7 @@ const io = socketIo(server, {
     )
     const {access_token, refresh_token, expires_in} = response.data
     console.log("log - refresh token is:", refresh_token)
-    res.redirect(`https://localhost:5173?access_token=${access_token}&refresh_token=${refresh_token}&expires_in=${expires_in}`)
+    res.redirect(`http://localhost:5173?access_token=${access_token}&refresh_token=${refresh_token}&expires_in=${expires_in}`)
   })
 
   app.post('/auth/refresh_token', async (req, res) => {
@@ -360,5 +360,5 @@ app.get('/auth_Ig/callback', async (req, res) => {
   // res.clearCookie('oauth_state')
   // res.clearCookie('user_id')
 
-  res.redirect(`https://localhost:5173?ig_code=${code}`)
+  res.redirect(`http://localhost:5173?ig_code=${code}`)
 })
