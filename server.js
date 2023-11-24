@@ -8,8 +8,6 @@ const querystring = require('querystring')
 const http = require('http')
 const functions = require('firebase-functions')
 const admin = require('firebase-admin')
-const fs = require('fs')
-const secretFilePath = '/etc/secrets/FIREBASE_SERVICE_ACCOUNT'
 
 const port = process.env.PORT
 
@@ -200,19 +198,7 @@ const io = socketIo(server, {
   
   //Chats
 
-fs.readFile(secretFilePath, 'utf8', (err, data) => {
-  if (err) {
-    console.error(`Error reading secret file: ${err}`)
-    return;
-  }
-
-  try {
-    const serviceAccount = JSON.parse(data)
-    console.log(firebaseServiceAccount)
-  } catch (jsonError) {
-    console.error(`Error parsing JSON: ${jsonError}`)
-  }
-})
+  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
 
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
