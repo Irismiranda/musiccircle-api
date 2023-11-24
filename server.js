@@ -324,6 +324,8 @@ app.post('/instagram_connect', async (req, res) => {
 
   req.session.user_id = user_id
   req.session.stored_state = state
+
+  console.log(req.session)
   
   try{
     res.send(`https://api.instagram.com/oauth/authorize?${auth_query_parameters.toString()}`)
