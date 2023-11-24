@@ -15,7 +15,7 @@ dotenv.config()
 const app = express()
 
 app.use(cors({
-  origin: 'https://musiccircle.onrender.com', // Update with your client's URL
+  origin: 'https://musiccircle.onrender.com', 
   methods: ["GET", "POST"],
   credentials: true
 }))
@@ -28,7 +28,7 @@ const server = app.listen(4000, function(){
 
 const io = socketIo(server, {
   cors: {
-    origin: 'https://musiccircle.onrender.com', // Update with your client's URL
+    origin: 'https://musiccircle.onrender.com', 
     methods: ["GET", "POST"],
     credentials: true
   },
@@ -340,9 +340,6 @@ app.get('/auth_Ig/callback', async (req, res) => {
     console.error('Error updating user in Firestore:', error)
     return res.status(500).send('Internal Server Error')
   }
-
-  // res.clearCookie('oauth_state')
-  // res.clearCookie('user_id')
 
   res.redirect(`https://musiccircle.onrender.com?ig_code=${code}`)
 })
