@@ -16,7 +16,6 @@ const app = express()
 
 app.use(cors({
   origin: 'https://musiccircle.onrender.com', 
-  methods: ["GET", "POST"],
   credentials: true
 }))
 
