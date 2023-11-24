@@ -317,11 +317,6 @@ app.post('/instagram_connect', async (req, res) => {
     response_type: 'code',
     state: state,
   })
-
-  // console.log("log -", res.cookie)
-
-  // res.cookie('oauth_state', state, { httpOnly: true, secure: true })
-  // res.cookie('user_id', user_id, { httpOnly: true, secure: true })
   
   try{
     res.send(`https://api.instagram.com/oauth/authorize?${auth_query_parameters.toString()}`)
@@ -332,8 +327,6 @@ app.post('/instagram_connect', async (req, res) => {
 
 app.get('/auth_Ig/callback', async (req, res) => {
   const { code, state } = req.query
-  //const storedState = req.cookies['oauth_state']
-  //const userId = req.cookies['user_id']
 
   if (state !== storedState) {
     return res.status(400).send('Invalid state parameter.');
