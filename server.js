@@ -309,11 +309,8 @@ app.post('/instagram_connect', async (req, res) => {
   const state = uuidv4()
   const { user_id } = req.body
 
-  currentDate = new Date()
-  const expirationDate = currentDate.setMinutes(currentDate.getMinutes() + 5)
-
-  res.cookie('user_id', user_id, { expires: expirationDate })
-  res.cookie('stored_state', state, { expires: expirationDate })
+  res.cookie('user_id', user_id, { maxAge: 300000 })
+  res.cookie('stored_state', state, { maxAge: 300000 })
 
   const auth_query_parameters = new URLSearchParams({
     client_id: ig_client_id,
