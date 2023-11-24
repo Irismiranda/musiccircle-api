@@ -311,6 +311,7 @@ app.post('/instagram_connect', async (req, res) => {
 
   res.cookie('user_id', user_id, { maxAge: 300000 })
   res.cookie('stored_state', state, { maxAge: 300000 })
+  console.log(req.cookies.user_id, req.cookies.stored_state, req.cookies)
 
   const auth_query_parameters = new URLSearchParams({
     client_id: ig_client_id,
