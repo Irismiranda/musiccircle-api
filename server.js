@@ -9,6 +9,8 @@ const cookieParser = require('cookie-parser')
 const admin = require('firebase-admin')
 const { v4: uuidv4 } = require('uuid')
 
+axios.defaults.withCredentials = true
+
 const port = process.env.PORT
 
 dotenv.config()
