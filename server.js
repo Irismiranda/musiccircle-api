@@ -62,7 +62,7 @@ const io = socketIo(server, {
       response_type: 'code',
       client_id: spotify_client_id,
       scope: scope,
-      redirect_uri: 'https://musiccircle-api.onrender.com/callback',
+      redirect_uri: 'https://musiccircle-api.onrender.com/auth/callback',
       state: state,
     })
 
