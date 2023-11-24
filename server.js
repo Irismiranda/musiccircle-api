@@ -2,12 +2,12 @@ const express = require('express')
 const cors = require('cors')
 const dotenv = require('dotenv')
 const axios = require('axios')
-const { v4: uuidv4 } = require('uuid')
+const functions = require('firebase-functions')
 const socketIo = require('socket.io')
 const querystring = require('querystring')
-const functions = require('firebase-functions')
+const cookieParser = require('cookie-parser')
 const admin = require('firebase-admin')
-const session = require('express-session')
+const { v4: uuidv4 } = require('uuid')
 
 const port = process.env.PORT
 
@@ -21,11 +21,7 @@ app.use(cors({
 }))
 
 app.use(express.json())
-
-app.use(session({
-  secret: process.env.SESSION_SECRET, 
-  saveUninitialized: true,
-}))
+app.use(cookieParser())
 
 const server = app.listen(4000, function(){
   console.log('listening for requests on port 4000,')
@@ -314,6 +310,9 @@ app.post('/instagram_connect', async (req, res) => {
   const state = uuidv4()
   const { user_id } = req.body
 
+  res.cookie('user_id', user_id)
+  res.cookie('stored_state', state)
+
   const auth_query_parameters = new URLSearchParams({
     client_id: ig_client_id,
     redirect_uri: ig_redirect_uri,
@@ -322,24 +321,17 @@ app.post('/instagram_connect', async (req, res) => {
     state: state,
   })
 
-  req.session.user_id = user_id
-  req.session.stored_state = state
-
-  console.log(req.session)
-  
   try{
     res.send(`https://api.instagram.com/oauth/authorize?${auth_query_parameters.toString()}`)
   } catch(err){
     console.log("log - ", err)
-  }
+  } 
 })
 
 app.get('/auth_Ig/callback', async (req, res) => {
   const { code, state } = req.query
-  const user_id = req.session.user_id
-  const stored_state = req.session.stored_state
-
-  console.log(req.session)
+  const user_id = req.cookies.user_id
+  const stored_state = req.cookies.stored_state
 
   if (state !== stored_state) {
     return res.status(400).send('Invalid state parameter.');
