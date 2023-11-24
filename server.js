@@ -305,7 +305,6 @@ const io = socketIo(server, {
 const ig_client_id = process.env.IG_CLIENT_ID
 const ig_redirect_uri = process.env.IG_REDIRECT_URI
 
-
 app.post('/instagram_connect', async (req, res) => {
   const state = uuidv4()
   const { user_id } = req.body
