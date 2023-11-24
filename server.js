@@ -5,9 +5,9 @@ const axios = require('axios')
 const { v4: uuidv4 } = require('uuid')
 const socketIo = require('socket.io')
 const querystring = require('querystring')
-const http = require('http')
 const functions = require('firebase-functions')
 const admin = require('firebase-admin')
+const session = require('express-session')
 
 const port = process.env.PORT
 
@@ -21,6 +21,11 @@ app.use(cors({
 }))
 
 app.use(express.json())
+
+app.use(session({
+  secret: process.env.SESSION_SECRET, 
+  saveUninitialized: true,
+}))
 
 const server = app.listen(4000, function(){
   console.log('listening for requests on port 4000,')
@@ -316,6 +321,9 @@ app.post('/instagram_connect', async (req, res) => {
     response_type: 'code',
     state: state,
   })
+
+  req.session.user_id = user_id
+  req.session.stored_state = state
   
   try{
     res.send(`https://api.instagram.com/oauth/authorize?${auth_query_parameters.toString()}`)
@@ -326,12 +334,14 @@ app.post('/instagram_connect', async (req, res) => {
 
 app.get('/auth_Ig/callback', async (req, res) => {
   const { code, state } = req.query
+  const user_id = req.session.user_id
+  const stored_state = req.session.stored_state
 
-  if (state !== storedState) {
+  if (state !== stored_state) {
     return res.status(400).send('Invalid state parameter.');
   }
 
-  const userDocRef = admin.firestore().doc(`user/${userId}`)
+  const userDocRef = admin.firestore().doc(`user/${user_id}`)
   
   try {
     await userDocRef.update({ instagram_connected: true })
