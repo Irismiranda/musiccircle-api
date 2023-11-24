@@ -40,9 +40,7 @@ const io = socketIo(server, {
   const spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET
 
   app.get('/auth/login', (req, res) => {
-    const scope = encodeURIComponent(
-      'streaming user-read-email user-follow-modify user-follow-read user-top-read user-read-recently-played user-read-currently-playing user-read-playback-state user-read-playback-position user-modify-playback-state user-read-private user-library-read user-library-modify user-read-private'
-    )    
+    const scope = 'streaming user-read-email user-follow-modify user-follow-read user-top-read user-read-recently-played user-read-currently-playing user-read-playback-state user-read-playback-position user-modify-playback-state user-read-private user-library-read user-library-modify user-read-private'
 
     const state = uuidv4()
 
