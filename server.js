@@ -22,7 +22,7 @@ app.use(cors({
 
 app.use(express.json())
 
-const server = app.listen(4000, '0.0.0.0', function(){
+const server = app.listen(4000, function(){
   console.log('listening for requests on port 4000,')
 })
 
