@@ -9,9 +9,12 @@ const cookieParser = require('cookie-parser')
 const admin = require('firebase-admin')
 const { v4: uuidv4 } = require('uuid')
 
-axios.defaults.withCredentials = true
-
 const port = process.env.PORT
+
+app.use((req, res, next) => {
+  req.cookies = new Cookies(req, res, { httpOnly: true,  })
+  next()
+})
 
 dotenv.config()
 const app = express()
@@ -22,7 +25,6 @@ app.use(cors({
 }))
 
 app.use(express.json())
-app.use(cookieParser())
 
 const server = app.listen(4000, function(){
   console.log('listening for requests on port 4000,')
@@ -311,8 +313,8 @@ app.post('/instagram_connect', async (req, res) => {
   const state = uuidv4()
   const { user_id } = req.body
 
-  res.cookie('user_id', user_id, { maxAge: 300000 })
-  res.cookie('stored_state', state, { maxAge: 300000 })
+  req.cookies.set('user_id', user_id, { maxAge: 300000 })
+  req.cookies.set('stored_state', state, { maxAge: 300000 })
   console.log(req.cookies.user_id, req.cookies.stored_state, req.cookies)
 
   const auth_query_parameters = new URLSearchParams({
@@ -332,8 +334,8 @@ app.post('/instagram_connect', async (req, res) => {
 
 app.get('/auth_Ig/callback', async (req, res) => {
   const { code, state } = req.query
-  const user_id = req.cookies.user_id
-  const stored_state = req.cookies.stored_state
+  const user_id = req.cookies.get.user_id
+  const stored_state = req.cookies.get.stored_state
 
   console.log(req.cookies.user_id, req.cookies.stored_state, req.cookies)
 
