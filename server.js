@@ -5,9 +5,9 @@ const axios = require('axios')
 const functions = require('firebase-functions')
 const socketIo = require('socket.io')
 const querystring = require('querystring')
-const cookieParser = require('cookie-parser')
 const admin = require('firebase-admin')
 const { v4: uuidv4 } = require('uuid')
+const fs = require('fs')
 
 const port = process.env.PORT
 const app = express()
@@ -19,7 +19,6 @@ app.use(cors({
   credentials: true
 }))
 
-app.use(cookieParser())
 app.use(express.json())
 
 const server = app.listen(4000, function(){
@@ -306,19 +305,18 @@ const ig_client_id = process.env.IG_CLIENT_ID
 const ig_redirect_uri = process.env.IG_REDIRECT_URI
 
 app.post('/instagram_connect', async (req, res) => {
-
-  console.log("AAAAAAA", app)
-  
   const state = uuidv4()
   const { user_id } = req.body
 
-  console.log(state, user_id)
+  const tempData = {
+    user_id: user_id,
+    stored_state: state,
+  };
 
-  res.cookie('user_id', user_id)
-  res.cookie('stored_state', state)
-  res.cookie('test', 'test value')
+  const jsonData = JSON.stringify(tempData);
+  const filePath = '/tmp/instagram_data.json';
 
-  console.log("log -", req.cookies)
+  fs.writeFileSync(filePath, jsonData)
 
   const auth_query_parameters = new URLSearchParams({
     client_id: ig_client_id,
@@ -337,21 +335,30 @@ app.post('/instagram_connect', async (req, res) => {
 
 app.get('/auth_Ig/callback', async (req, res) => {
   const { code, state } = req.query
-  const user_id = req.cookies.user_id
-  const stored_state = req.cookies.stored_state
 
-  console.log("log -", user_id, stored_state, req.cookies)
+  const filePath = '/tmp/instagram_data.json'
 
-  if (state !== stored_state) {
-    return res.status(400).send('Invalid state parameter.');
-  }
-
-  const userDocRef = admin.firestore().doc(`user/${user_id}`)
-  
   try {
-    await userDocRef.update({ instagram_connected: true })
+
+    const tempData = fs.readFileSync(filePath, 'utf8')
+    const { user_id, stored_state } = JSON.parse(tempData)
+
+    if (state !== stored_state) {
+      return res.status(400).send('Invalid state parameter.')
+    }
+
+    const userDocRef = admin.firestore().doc(`user/${user_id}`)
+
+    try {
+      await userDocRef.update({ instagram_connected: true })
+    } catch (error) {
+      console.error('Error updating user in Firestore:', error)
+      return res.status(500).send('Internal Server Error')
+    }
+
+    res.redirect(`https://musiccircle.onrender.com?ig_code=${code}`)
   } catch (error) {
-    console.error('Error updating user in Firestore:', error)
+    console.error('Error reading data from file:', error)
     return res.status(500).send('Internal Server Error')
   }
 
