@@ -316,6 +316,7 @@ app.post('/instagram_connect', async (req, res) => {
 
   res.cookie('user_id', user_id)
   res.cookie('stored_state', state)
+  res.cookie('test', 'test value')
 
   console.log("log -", req.cookies)
 
