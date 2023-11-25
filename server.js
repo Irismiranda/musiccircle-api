@@ -309,6 +309,8 @@ app.post('/instagram_connect', async (req, res) => {
   const state = uuidv4()
   const { user_id } = req.body
 
+  console.log(state, user_id)
+
   res.cookie('user_id', user_id, { httpOnly: true, maxAge: 300000 })
   res.cookie('stored_state', state, { httpOnly: true, maxAge: 300000 })
   console.log("log -", req.cookies)
