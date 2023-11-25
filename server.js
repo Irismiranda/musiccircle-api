@@ -10,14 +10,14 @@ const admin = require('firebase-admin')
 const { v4: uuidv4 } = require('uuid')
 
 const port = process.env.PORT
+const app = express()
+
+dotenv.config()
 
 app.use((req, res, next) => {
   req.cookies = new Cookies(req, res, { httpOnly: true,  })
   next()
 })
-
-dotenv.config()
-const app = express()
 
 app.use(cors({
   origin: 'https://musiccircle.onrender.com', 
