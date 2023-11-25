@@ -352,8 +352,8 @@ app.get('/auth_Ig/callback', async (req, res) => {
     const userDocRef = admin.firestore().doc(`user/${user_id}`)
 
     try {
-      await userDocRef.update({ 'UserData.instagram_connected': true });
-      await userDocRef.update({ 'UserData.instagram_code': code });
+      await userDocRef.update({ 'userData.instagram_connected': true });
+      await userDocRef.update({ 'userData.instagram_code': code });
       res.send(`
         <html>
         <body>
