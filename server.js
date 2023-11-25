@@ -10,6 +10,7 @@ const admin = require('firebase-admin')
 const { v4: uuidv4 } = require('uuid')
 
 const port = process.env.PORT
+const cookies = req.cookies = new Cookies(req, res, { httpOnly: true,  })
 const app = express()
 
 dotenv.config()
@@ -19,10 +20,6 @@ app.use(cors({
   credentials: true
 }))
 
-app.use((req, res, next) => {
-  req.cookies = new Cookies(req, res, { httpOnly: true,  })
-  next()
-})
 
 app.use(express.json())
 
@@ -315,7 +312,6 @@ app.post('/instagram_connect', async (req, res) => {
 
   req.cookies.set('user_id', user_id, { maxAge: 300000 })
   req.cookies.set('stored_state', state, { maxAge: 300000 })
-  console.log(req.cookies.user_id, req.cookies.stored_state, req.cookies)
 
   const auth_query_parameters = new URLSearchParams({
     client_id: ig_client_id,
@@ -337,7 +333,7 @@ app.get('/auth_Ig/callback', async (req, res) => {
   const user_id = req.cookies.get.user_id
   const stored_state = req.cookies.get.stored_state
 
-  console.log(req.cookies.user_id, req.cookies.stored_state, req.cookies)
+  console.log(user_id, stored_state, req.cookies.get, req.cookies)
 
   if (state !== stored_state) {
     return res.status(400).send('Invalid state parameter.');
