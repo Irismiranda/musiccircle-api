@@ -5,7 +5,7 @@ const axios = require('axios')
 const functions = require('firebase-functions')
 const socketIo = require('socket.io')
 const querystring = require('querystring')
-const cookies = require('cookies')
+const Cookies = require('cookies')
 const admin = require('firebase-admin')
 const { v4: uuidv4 } = require('uuid')
 
@@ -19,7 +19,11 @@ app.use(cors({
   credentials: true
 }))
 
-app.use(cookies.express())
+app.use((req, res, next) => {
+  req.cookies = new Cookies(req, res)
+  next()
+})
+
 app.use(express.json())
 
 const server = app.listen(4000, function(){
