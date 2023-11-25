@@ -5,7 +5,7 @@ const axios = require('axios')
 const functions = require('firebase-functions')
 const socketIo = require('socket.io')
 const querystring = require('querystring')
-const cookieParser = require('cookie-parser')
+const Cookies = require('cookies')
 const admin = require('firebase-admin')
 const { v4: uuidv4 } = require('uuid')
 
