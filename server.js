@@ -353,16 +353,25 @@ app.get('/auth_Ig/callback', async (req, res) => {
 
     try {
       await userDocRef.update({ instagram_connected: true })
+      await userDocRef.update({ instagram_code: code })
+      res.send(`
+        <html>
+        <body>
+        <script>
+            window.opener.postMessage('InstagramAuthSuccess', 'https://musiccircle.onrender.com')
+            window.close()
+        </script>
+        </body>
+        </html>
+    `);
     } catch (error) {
       console.error('Error updating user in Firestore:', error)
       return res.status(500).send('Internal Server Error')
     }
 
-    res.redirect(`https://musiccircle.onrender.com?ig_code=${code}`)
+    
   } catch (error) {
     console.error('Error reading data from file:', error)
     return res.status(500).send('Internal Server Error')
   }
-
-  res.redirect(`https://musiccircle.onrender.com?ig_code=${code}`)
 })
