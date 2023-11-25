@@ -311,8 +311,8 @@ app.post('/instagram_connect', async (req, res) => {
 
   console.log(state, user_id)
 
-  res.cookie('user_id', user_id, { httpOnly: true, maxAge: 300000 })
-  res.cookie('stored_state', state, { httpOnly: true, maxAge: 300000 })
+  res.cookie('user_id', user_id, { domain: 'https://musiccircle-api.onrender.com', secure: true, httpOnly: true })
+  res.cookie('stored_state', state, { domain: 'https://musiccircle-api.onrender.com', secure: true, httpOnly: true })
   console.log("log -", req.cookies)
 
   const auth_query_parameters = new URLSearchParams({
