@@ -5,7 +5,7 @@ const axios = require('axios')
 const functions = require('firebase-functions')
 const socketIo = require('socket.io')
 const querystring = require('querystring')
-const Cookies = require('cookies')
+const cookieParser = require('cookie-parser')
 const admin = require('firebase-admin')
 const { v4: uuidv4 } = require('uuid')
 
@@ -19,11 +19,7 @@ app.use(cors({
   credentials: true
 }))
 
-app.use((req, res, next) => {
-  req.cookies = new Cookies(req, res)
-  next()
-})
-
+app.use(cookieParser())
 app.use(express.json())
 
 const server = app.listen(4000, function(){
@@ -313,8 +309,8 @@ app.post('/instagram_connect', async (req, res) => {
   const state = uuidv4()
   const { user_id } = req.body
 
-  req.cookies.set('user_id', user_id, { maxAge: 300000 })
-  req.cookies.set('stored_state', state, { maxAge: 300000 })
+  res.cookie('user_id', user_id, { maxAge: 300000 })
+  res.cookie('stored_state', state, { maxAge: 300000 })
 
   const auth_query_parameters = new URLSearchParams({
     client_id: ig_client_id,
@@ -333,10 +329,10 @@ app.post('/instagram_connect', async (req, res) => {
 
 app.get('/auth_Ig/callback', async (req, res) => {
   const { code, state } = req.query
-  const user_id = req.cookies.get.user_id
-  const stored_state = req.cookies.get.stored_state
+  const user_id = req.cookies.user_id
+  const stored_state = req.cookies.stored_state
 
-  console.log("log -", user_id, stored_state, req.cookies.get, req.cookies)
+  console.log("log -", user_id, stored_state, req.cookies)
 
   if (state !== stored_state) {
     return res.status(400).send('Invalid state parameter.');
