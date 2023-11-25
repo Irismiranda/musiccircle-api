@@ -336,7 +336,7 @@ app.get('/auth_Ig/callback', async (req, res) => {
   const user_id = req.cookies.get.user_id
   const stored_state = req.cookies.get.stored_state
 
-  console.log(user_id, stored_state, req.cookies.get, req.cookies)
+  console.log("log -", user_id, stored_state, req.cookies.get, req.cookies)
 
   if (state !== stored_state) {
     return res.status(400).send('Invalid state parameter.');
