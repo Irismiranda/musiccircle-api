@@ -14,15 +14,15 @@ const app = express()
 
 dotenv.config()
 
-app.use((req, res, next) => {
-  req.cookies = new Cookies(req, res, { httpOnly: true,  })
-  next()
-})
-
 app.use(cors({
   origin: 'https://musiccircle.onrender.com', 
   credentials: true
 }))
+
+app.use((req, res, next) => {
+  req.cookies = new Cookies(req, res, { httpOnly: true,  })
+  next()
+})
 
 app.use(express.json())
 
