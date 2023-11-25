@@ -10,7 +10,7 @@ const admin = require('firebase-admin')
 const { v4: uuidv4 } = require('uuid')
 
 const port = process.env.PORT
-const cookies = req.cookies = new Cookies(req, res, { httpOnly: true,  })
+const cookies = new Cookies(req, res, { httpOnly: true })
 const app = express()
 
 dotenv.config()
