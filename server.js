@@ -5,12 +5,11 @@ const axios = require('axios')
 const functions = require('firebase-functions')
 const socketIo = require('socket.io')
 const querystring = require('querystring')
-const Cookies = require('cookies')
+const cookies = require('cookies')
 const admin = require('firebase-admin')
 const { v4: uuidv4 } = require('uuid')
 
 const port = process.env.PORT
-const cookies = new Cookies(req, res, { httpOnly: true })
 const app = express()
 
 dotenv.config()
@@ -20,7 +19,7 @@ app.use(cors({
   credentials: true
 }))
 
-
+app.use(cookies.express())
 app.use(express.json())
 
 const server = app.listen(4000, function(){
