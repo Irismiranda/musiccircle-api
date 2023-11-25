@@ -363,7 +363,7 @@ app.get('/auth_Ig/callback', async (req, res) => {
         </script>
         </body>
         </html>
-    `);
+    `)
     } catch (error) {
       console.error('Error updating user in Firestore:', error)
       return res.status(500).send('Internal Server Error')
