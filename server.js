@@ -163,10 +163,8 @@ const io = socketIo(server, {
   })
 
   app.post('/api/profile/following', async (req, res) => {
-    const { currentUser } = req.body
-    console.log("Log - current user is:", currentUser)
-    const { id, type } = currentUser
-
+    console.log("Log - current user is:", req.body)
+    const { id, type } = req.body
 
     try {
       const followingCollectionRef = admin.firestore().collection(`${type}/${id}/following`)
