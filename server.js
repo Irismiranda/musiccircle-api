@@ -162,22 +162,66 @@ const io = socketIo(server, {
       }
   })
 
-  app.post('/api/profile/following', async (req, res) => {
-    console.log("Log - current user is:", req.body)
-    const { id, type } = req.body
+  app.post('/api/profile/top_tracks', async (req, res)  => {
+    const { id, topTracks } = req.body
+
+    const userDocRef = admin.firestore().doc(`user/${id}/top_tracks`)
+    
+    try {
+      await userDocRef.set({ top_tracks: topTracks })
+      res.status(200).json({ message: 'Top tracks updated successfully.' })
+  } catch(err) {
+      console.error(err)
+      res.status(500).json({ error: 'Internal Server Error' })
+  }
+  })
+
+  app.post('/api/profile/top_artists', async (req, res)  => {
+    const { id, topArtists } = req.body
+
+    const userDocRef = admin.firestore().doc(`user/${id}/top_artists`)
+    
+    try {
+      await userDocRef.set({top_artists: topArtists})
+      res.status(200).json({ message: 'Top artists updated successfully.' })
+    } catch(err) {
+        console.error(err)
+        res.status(500).json({ error: 'Internal Server Error' })
+    }
+  })
+
+  app.get('/api/profile/top_tracks', async (req, res)  => {
+    const id = req.params.id
+    const userDocRef = admin.firestore().doc(`user/${id}/top_tracks`)
 
     try {
-      const followingCollectionRef = admin.firestore().collection(`${type}/${id}/following`)
-      const userFollowingCollection = await followingCollectionRef.get()
-
-      if (userFollowingCollection.empty) {
-          res.json(null)
-        } else {  
-          res.json(userFollowingCollection.data)
-        }
-      } catch(err){
-        console.log(err)
+      const doc = await userDocRef.get()
+      if (doc.exists) {
+          res.json(doc.data().top_tracks)
+      } else {
+          res.status(404).json({ error: 'User not found.' })
       }
+  } catch(err) {
+      console.error(err)
+      res.status(500).json({ error: 'Internal Server Error' })
+  }
+  })
+
+  app.get('/api/profile/top_artists', async (req, res)  => {
+    const id = req.params.id
+    const userDocRef = admin.firestore().doc(`user/${id}/top_artists`)
+
+    try {
+      const doc = await userDocRef.get()
+      if (doc.exists) {
+          res.json(doc.data().top_artists)
+      } else {
+          res.status(404).json({ error: 'User not found.' })
+      }
+  } catch(err) {
+      console.error(err)
+      res.status(500).json({ error: 'Internal Server Error' })
+  }
   })
   
   //Chats
@@ -273,7 +317,7 @@ const io = socketIo(server, {
             batch.delete(doc.ref)
           })
           await batch.commit()
-          console.log(`Deleted ${messagesToDelete} old message(s) to maintain limit.`);
+          console.log(`Deleted ${messagesToDelete} old message(s) to maintain limit.`)
         }
       } catch (error) {
         console.error('Error adding message to Firestore:', error)
