@@ -230,7 +230,7 @@ const io = socketIo(server, {
       if (doc.exists) {
         const data = {
           showTopArtists: doc.data().show_top_artists,
-          tracks: doc.data().top_artists
+          artists: doc.data().top_artists
         }
         res.json(data)
       } else {
