@@ -165,7 +165,7 @@ const io = socketIo(server, {
   app.post('/api/profile/top_tracks', async (req, res)  => {
     const { id, topTracks } = req.body
 
-    const collectionRef = admin.firestore().doc(`user/${id}`)
+    const userDocRef = admin.firestore().doc(`user/${id}`)
     
     try {
       await userDocRef.update({ top_tracks: topTracks })
@@ -192,7 +192,7 @@ const io = socketIo(server, {
 
   app.get('/api/profile/top_tracks', async (req, res)  => {
     const id = req.params.id
-    const userDocRef = admin.firestore().doc(`user/${id}/top_tracks`)
+    const userDocRef = admin.firestore().doc(`user/${id}`)
 
     try {
       const doc = await userDocRef.get()
@@ -209,7 +209,7 @@ const io = socketIo(server, {
 
   app.get('/api/profile/top_artists', async (req, res)  => {
     const id = req.params.id
-    const userDocRef = admin.firestore().doc(`user/${id}/top_artists`)
+    const userDocRef = admin.firestore().doc(`user/${id}`)
 
     try {
       const doc = await userDocRef.get()
