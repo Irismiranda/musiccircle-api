@@ -169,6 +169,8 @@ const io = socketIo(server, {
     
     try {
       await userDocRef.update({ top_tracks: topTracks })
+      const user = await userDocRef.get()
+
       if (user.data().show_top_tracks === undefined) {
         userDocRef.update({show_top_tracks: true})
         }
@@ -187,6 +189,7 @@ const io = socketIo(server, {
     try {
       await userDocRef.update({top_artists: topArtists})
       const user = await userDocRef.get()
+      
       if (user.data().show_top_artists === undefined) {
         userDocRef.update({show_top_artists: true})
       }
