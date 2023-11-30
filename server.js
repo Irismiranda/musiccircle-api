@@ -165,10 +165,10 @@ const io = socketIo(server, {
   app.post('/api/profile/top_tracks', async (req, res)  => {
     const { id, topTracks } = req.body
 
-    const userDocRef = admin.firestore().doc(`user/${id}/top_tracks`)
+    const collectionRef = admin.firestore().collection(`user/${id}/top_tracks`)
     
     try {
-      await userDocRef.set({ top_tracks: topTracks })
+      await collectionRef.set({ top_tracks: topTracks })
       res.status(200).json({ message: 'Top tracks updated successfully.' })
   } catch(err) {
       console.error(err)
@@ -179,10 +179,10 @@ const io = socketIo(server, {
   app.post('/api/profile/top_artists', async (req, res)  => {
     const { id, topArtists } = req.body
 
-    const userDocRef = admin.firestore().doc(`user/${id}/top_artists`)
+    const collectionRef = admin.firestore().collection(`user/${id}/top_artists`)
     
     try {
-      await userDocRef.set({top_artists: topArtists})
+      await collectionRef.set({top_artists: topArtists})
       res.status(200).json({ message: 'Top artists updated successfully.' })
     } catch(err) {
         console.error(err)
