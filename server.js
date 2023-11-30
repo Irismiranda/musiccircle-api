@@ -169,6 +169,9 @@ const io = socketIo(server, {
     
     try {
       await userDocRef.update({ top_tracks: topTracks })
+      if (user.data().show_top_tracks === undefined) {
+        userDocRef.update({show_top_tracks: true})
+        }
       res.status(200).json({ message: 'Top tracks updated successfully.' })
   } catch(err) {
       console.error(err)
@@ -183,6 +186,10 @@ const io = socketIo(server, {
     
     try {
       await userDocRef.update({top_artists: topArtists})
+      const user = await userDocRef.get()
+      if (user.data().show_top_artists === undefined) {
+        userDocRef.update({show_top_artists: true})
+      }
       res.status(200).json({ message: 'Top artists updated successfully.' })
     } catch(err) {
         console.error(err)
@@ -198,6 +205,7 @@ const io = socketIo(server, {
       const doc = await userDocRef.get()
       if (doc.exists) {
           res.json(doc.data().top_tracks)
+          const user = await userDocRef.get()
       } else {
           res.status(404).json({ error: 'User not found.' })
       }
