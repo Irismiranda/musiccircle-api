@@ -190,7 +190,7 @@ const io = socketIo(server, {
     }
   })
 
-  app.get('/api/profile/top_tracks', async (req, res)  => {
+  app.get('/api/profile/top_tracks/:id', async (req, res)  => {
     const id = req.params.id
     const userDocRef = admin.firestore().doc(`user/${id}`)
 
@@ -207,7 +207,7 @@ const io = socketIo(server, {
   }
   })
 
-  app.get('/api/profile/top_artists', async (req, res)  => {
+  app.get('/api/profile/top_artists/:id', async (req, res)  => {
     const id = req.params.id
     const userDocRef = admin.firestore().doc(`user/${id}`)
 
