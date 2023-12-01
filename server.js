@@ -147,7 +147,7 @@ const io = socketIo(server, {
     const { id, type } = userData
 
     try {
-      const userDocRef = admin.firestore().doc(`${type}/${id}`)
+      const userDocRef = admin.firestore().doc(`${type}/${id}/${id}`)
       const userDoc = await userDocRef.get()
 
       if (userDoc.exists) {
