@@ -151,8 +151,8 @@ const io = socketIo(server, {
       const userDoc = await userDocRef.get()
 
       if (userDoc.exists) {
-          console.log("log -", userDoc.data())
-          res.json(userDoc.data())
+          console.log("log -", userDoc.data().userData)
+          res.json(userDoc.data().userData)
         } else {  
           await userDocRef.set({userData})
           res.json(userData)
