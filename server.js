@@ -164,12 +164,27 @@ const io = socketIo(server, {
 
   app.post('/api/profile/top_tracks', async (req, res)  => {
     const { id, topTracks } = req.body
-
+    console.log("new tracks are", topTracks)
     const userDocRef = admin.firestore().doc(`user/${id}`)
     
     try {
-      await userDocRef.update({ top_tracks: topTracks })
       const user = await userDocRef.get()
+      const prevTopTracks = user.top_tracks
+      console.log("log - prevTopTracks are", prevTopTracks)
+      const prevHiddenTracks = prevTopTracks.filter(track => track.isVisible === false)
+      console.log("prevHiddenTracks are", prevHiddenTracks)
+      const prevHiddenTrackIds = new Set(prevHiddenTracks.map(track => track.id))
+      console.log("prevHiddenTrackIds are", prevHiddenTrackIds)
+
+      const updatedTopTracks = topTracks.map(track => {
+        if (prevHiddenTrackIds.has(track.id)) {
+            return { ...track, isVisible: false };
+        }
+        return track
+    })
+
+      console.log("updatedTopTracks are", updatedTopTracks)
+      await userDocRef.update({ top_tracks: updatedTopTracks })
 
       if (user.data().show_top_tracks === undefined) {
         userDocRef.update({show_top_tracks: true})
