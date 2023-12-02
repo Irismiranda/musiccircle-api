@@ -162,7 +162,7 @@ const io = socketIo(server, {
       }
   })
 
-  app.post('/api/profile/top_tracks', async (req, res)  => {
+  app.post('/api/user/top_tracks', async (req, res)  => {
     const { id, topTracks } = req.body
     console.log("new tracks are", topTracks)
     const userDocRef = admin.firestore().doc(`user/${id}`)
@@ -179,7 +179,7 @@ const io = socketIo(server, {
   
         const updatedTopTracks = topTracks.map(track => {
           if (prevHiddenTrackIds.has(track.id)) {
-              return { ...track, isVisible: false };
+              return { ...track, isVisible: false }
           }
           return track
       })
@@ -199,7 +199,7 @@ const io = socketIo(server, {
   }
   })
 
-  app.post('/api/profile/top_artists', async (req, res)  => {
+  app.post('/api/user/top_artists', async (req, res)  => {
     const { id, topArtists } = req.body
 
     const userDocRef = admin.firestore().doc(`user/${id}`)
@@ -218,7 +218,31 @@ const io = socketIo(server, {
     }
   })
 
-  app.get('/api/profile/top_tracks/:id', async (req, res)  => {
+  app.post('/api/user/top_list/:category/toggleVisibility', async (req, res)  => {
+    const { userId, itemId } = req.body
+    const { category } = req.params
+    const userDocRef = admin.firestore().doc(`user/${userId}`)
+
+    try {
+        const doc = await userDocRef.get()
+        if (doc.exists) {
+            const userData = doc.data()
+            const topList = userData[category]
+            const updatedTopList = topList.map(item => item.id === itemId ? {...item, isVisible: !item.isVisible } : item)
+            const updateObject = { [category]: updatedTopList }
+
+            await userDocRef.update(updateObject);
+            res.json(updatedTopList)
+        } else {
+            res.status(404).json({ error: 'User not found.' })
+        }
+    } catch(err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' })
+    }
+})
+
+  app.get('/api/user/top_tracks/:id', async (req, res)  => {
     const id = req.params.id
     const userDocRef = admin.firestore().doc(`user/${id}`)
 
@@ -239,7 +263,7 @@ const io = socketIo(server, {
   }
   })
 
-  app.get('/api/profile/top_artists/:id', async (req, res)  => {
+  app.get('/api/user/top_artists/:id', async (req, res)  => {
     const id = req.params.id
     const userDocRef = admin.firestore().doc(`user/${id}`)
 
