@@ -169,7 +169,7 @@ const io = socketIo(server, {
     
     try {
       const user = await userDocRef.get()
-      const prevTopTracks = user.top_tracks
+      const prevTopTracks = user.data().top_tracks
       console.log("log - prevTopTracks are", prevTopTracks)
       const prevHiddenTracks = prevTopTracks.filter(track => track.isVisible === false)
       console.log("prevHiddenTracks are", prevHiddenTracks)
