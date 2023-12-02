@@ -170,21 +170,24 @@ const io = socketIo(server, {
     try {
       const user = await userDocRef.get()
       const prevTopTracks = user.data().top_tracks
-      console.log("log - prevTopTracks are", prevTopTracks)
-      const prevHiddenTracks = prevTopTracks.filter(track => track.isVisible === false)
-      console.log("prevHiddenTracks are", prevHiddenTracks)
-      const prevHiddenTrackIds = new Set(prevHiddenTracks.map(track => track.id))
-      console.log("prevHiddenTrackIds are", prevHiddenTrackIds)
-
-      const updatedTopTracks = topTracks.map(track => {
-        if (prevHiddenTrackIds.has(track.id)) {
-            return { ...track, isVisible: false };
-        }
-        return track
-    })
-
-      console.log("updatedTopTracks are", updatedTopTracks)
+      if(prevTopTracks){
+        console.log("log - prevTopTracks are", prevTopTracks)
+        const prevHiddenTracks = prevTopTracks.filter(track => track.isVisible === false)
+        console.log("log - prevHiddenTracks are", prevHiddenTracks)
+        const prevHiddenTrackIds = new Set(prevHiddenTracks.map(track => track.id))
+        console.log("log - prevHiddenTrackIds are", prevHiddenTrackIds)
+  
+        const updatedTopTracks = topTracks.map(track => {
+          if (prevHiddenTrackIds.has(track.id)) {
+              return { ...track, isVisible: false };
+          }
+          return track
+      })
       await userDocRef.update({ top_tracks: updatedTopTracks })
+      console.log("updatedTopTracks are", updatedTopTracks)
+      } else {
+        await userDocRef.update({ top_tracks: topTracks })
+      }
 
       if (user.data().show_top_tracks === undefined) {
         userDocRef.update({show_top_tracks: true})
