@@ -187,6 +187,7 @@ const io = socketIo(server, {
           }
           return item
       })
+      
       await userDocRef.update({ [category]: updatedList })
       res.send(updatedList)
       console.log("updatedList are", updatedList)
@@ -197,7 +198,6 @@ const io = socketIo(server, {
       if (prevData[`show_${category}`] === undefined) {
         userDocRef.update({[`show_${category}`]: true})
         }
-      res.status(200).json({ message: `${category} updated successfully` })
   } catch(err) {
       console.error(err)
       res.status(500).json({ error: 'Internal Server Error' })
