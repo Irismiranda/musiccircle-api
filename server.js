@@ -215,7 +215,7 @@ const io = socketIo(server, {
       if (doc.exists) {
           const item = {
             [`show_${category}`]: data[`show_${category}`],
-            tracks: data[category]
+            items: data[category]
           }
           res.json(item)
       } else {
