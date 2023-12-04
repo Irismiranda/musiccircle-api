@@ -174,30 +174,33 @@ const io = socketIo(server, {
 
         if (prevData) {
             const prevList = prevData[category] || []
-            const prevHiddenItems = prevList.filter(item => item.isVisible === false)
+            const prevHiddenItems = prevList.items.filter(item => item.isVisible === false)
             const prevHiddenItemIds = new Set(prevHiddenItems.map(item => item.id))
 
-            const updatedList = data.map(item => {
+            const updatedItems = data.map(item => {
                 return prevHiddenItemIds.has(item.id) ? { ...item, isVisible: false } : item
-            });
+            })
 
-            // Prepare the data to update
-            const updateData = { [category]: updatedList }
+            const updatedList = {...prevList, items: updatedItems}
 
             // Check if 'show_[category]' needs to be updated
-            if (prevData[`show_${category}`] === undefined) {
-                updateData[`show_${category}`] = true
+            if (prevList[`show_${category}`] === undefined) {
+                updatedList[`show_${category}`] = true
             }
 
             // Perform the update in a single call
-            await userDocRef.update(updateData)
+            await userDocRef.update(updatedList)
 
             // Send the updated list as the response
-            res.send(updateData)
+            res.send(updatedData)
         } else {
+            const newList = {
+              [`show_${category}`]: true,
+              items: data,
+            } 
             // In case there's no previous data for this category
-            await userDocRef.update({ [category]: data })
-            res.send(data)
+            await userDocRef.update({ [category]: newList })
+            res.send(newList)
         }
     } catch(err) {
         console.error(err)
@@ -205,28 +208,6 @@ const io = socketIo(server, {
     }
 })
 
-  app.get('/api/user/:category/:id', async (req, res)  => {
-    const { id, category } = req.params
-    const userDocRef = admin.firestore().doc(`user/${id}`)
-
-    try {
-      const doc = await userDocRef.get()
-      const data = doc.data()
-      if (doc.exists) {
-          const item = {
-            [`show_${category}`]: data[`show_${category}`],
-            items: data[category]
-          }
-          res.json(item)
-      } else {
-          res.status(404).json({ error: 'User not found.' })
-      }
-  } catch(err) {
-      console.error(err)
-      res.status(500).json({ error: 'Internal Server Error' })
-  }
-  })
-  
   app.post('/api/user/top_list/:category/toggleVisibility', async (req, res)  => {
     const { userId, itemId } = req.body
     const { category } = req.params
@@ -237,11 +218,12 @@ const io = socketIo(server, {
         if (doc.exists) {
             const userData = doc.data()
             const topList = userData[category]
-            const updatedTopList = topList.map(item => item.id === itemId ? {...item, isVisible: !item.isVisible } : item)
-            const updateObject = { [category]: updatedTopList }
+            const updatedItems = topList[items].map(item => item.id === itemId ? {...item, isVisible: !item.isVisible } : item)
+            const updatedList = {...topList, items: updatedItems}
+            const updateObject = { [category]:  updatedList}
 
             await userDocRef.update(updateObject);
-            res.json(updatedTopList)
+            res.json(updateObject)
         } else {
             res.status(404).json({ error: 'User not found.' })
         }
