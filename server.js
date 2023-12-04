@@ -193,7 +193,7 @@ const io = socketIo(server, {
             await userDocRef.update(updateData)
 
             // Send the updated list as the response
-            res.send(updatedList)
+            res.send(updateData)
         } else {
             // In case there's no previous data for this category
             await userDocRef.update({ [category]: data })
