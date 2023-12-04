@@ -195,10 +195,10 @@ const io = socketIo(server, {
             
             console.log("log - updated list is:", updatedList)
             // Perform the update in a single call
-            await userDocRef.update(updatedList)
+            await userDocRef.update({[category]:updatedList})
 
             // Send the updated list as the response
-            res.send(updatedData)
+            res.send(updatedList)
         } else {
             const newList = {
               [`show_${category}`]: true,
