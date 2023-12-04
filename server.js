@@ -162,62 +162,70 @@ const io = socketIo(server, {
       }
   })
 
-  app.post('/api/user/top_tracks', async (req, res)  => {
-    const { id, topTracks } = req.body
-    console.log("new tracks are", topTracks)
+  app.post('/api/user/:category', async (req, res)  => {
+    const { id, data } = req.body
+    const { category } = req.params
+
+    console.log(`${category} are:`, data)
     const userDocRef = admin.firestore().doc(`user/${id}`)
     
     try {
       const user = await userDocRef.get()
-      const prevTopTracks = user.data().top_tracks
-      if(prevTopTracks){
-        console.log("log - prevTopTracks are", prevTopTracks)
-        const prevHiddenTracks = prevTopTracks.filter(track => track.isVisible === false)
-        console.log("log - prevHiddenTracks are", prevHiddenTracks)
-        const prevHiddenTrackIds = new Set(prevHiddenTracks.map(track => track.id))
-        console.log("log - prevHiddenTrackIds are", prevHiddenTrackIds)
+      const prevData = user.data()
+      
+      if(prevData){
+        const prevList = prevData[category]
+        console.log("log - prevList is", prevList)
+        const prevHiddenItems = prevList.filter(item => item.isVisible === false)
+        console.log("log - prevHiddenItems are", prevHiddenItems)
+        const prevHiddenItemIds = new Set(prevHiddenItems.map(item => item.id))
+        console.log("log - prevHiddenItems are", prevHiddenItems)
   
-        const updatedTopTracks = topTracks.map(track => {
-          if (prevHiddenTrackIds.has(track.id)) {
-              return { ...track, isVisible: false }
+        const updatedList = data.map(item => {
+          if (prevHiddenItemIds.has(item.id)) {
+              return { ...item, isVisible: false }
           }
-          return track
+          return item
       })
-      await userDocRef.update({ top_tracks: updatedTopTracks })
-      console.log("updatedTopTracks are", updatedTopTracks)
+      await userDocRef.update({ [category]: updatedList })
+      res.send(updatedList)
+      console.log("updatedList are", updatedList)
       } else {
-        await userDocRef.update({ top_tracks: topTracks })
+        await userDocRef.update({ [category]: data })
+        res.send(data)
       }
-
-      if (user.data().show_top_tracks === undefined) {
-        userDocRef.update({show_top_tracks: true})
+      if (prevData[`show_${category}`] === undefined) {
+        userDocRef.update({[`show_${category}`]: true})
         }
-      res.status(200).json({ message: 'Top tracks updated successfully.' })
+      res.status(200).json({ message: `${category} updated successfully` })
   } catch(err) {
       console.error(err)
       res.status(500).json({ error: 'Internal Server Error' })
   }
   })
 
-  app.post('/api/user/top_artists', async (req, res)  => {
-    const { id, topArtists } = req.body
-
+  app.get('/api/user/:category/:id', async (req, res)  => {
+    const { id, category } = req.params
     const userDocRef = admin.firestore().doc(`user/${id}`)
-    
+
     try {
-      await userDocRef.update({top_artists: topArtists})
-      const user = await userDocRef.get()
-
-      if (user.data().show_top_artists === undefined) {
-        userDocRef.update({show_top_artists: true})
+      const doc = await userDocRef.get()
+      const data = doc.data()
+      if (doc.exists) {
+          const item = {
+            [`show_${category}`]: data[`show_${category}`],
+            tracks: data[category]
+          }
+          res.json(item)
+      } else {
+          res.status(404).json({ error: 'User not found.' })
       }
-      res.status(200).json({ message: 'Top artists updated successfully.' })
-    } catch(err) {
-        console.error(err)
-        res.status(500).json({ error: 'Internal Server Error' })
-    }
+  } catch(err) {
+      console.error(err)
+      res.status(500).json({ error: 'Internal Server Error' })
+  }
   })
-
+  
   app.post('/api/user/top_list/:category/toggleVisibility', async (req, res)  => {
     const { userId, itemId } = req.body
     const { category } = req.params
@@ -242,48 +250,6 @@ const io = socketIo(server, {
     }
 })
 
-  app.get('/api/user/top_tracks/:id', async (req, res)  => {
-    const id = req.params.id
-    const userDocRef = admin.firestore().doc(`user/${id}`)
-
-    try {
-      const doc = await userDocRef.get()
-      if (doc.exists) {
-          const data = {
-            showTopTracks: doc.data().show_top_tracks,
-            tracks: doc.data().top_tracks
-          }
-          res.json(data)
-      } else {
-          res.status(404).json({ error: 'User not found.' })
-      }
-  } catch(err) {
-      console.error(err)
-      res.status(500).json({ error: 'Internal Server Error' })
-  }
-  })
-
-  app.get('/api/user/top_artists/:id', async (req, res)  => {
-    const id = req.params.id
-    const userDocRef = admin.firestore().doc(`user/${id}`)
-
-    try {
-      const doc = await userDocRef.get()
-      if (doc.exists) {
-        const data = {
-          showTopArtists: doc.data().show_top_artists,
-          artists: doc.data().top_artists
-        }
-        res.json(data)
-      } else {
-          res.status(404).json({ error: 'User not found.' })
-      }
-  } catch(err) {
-      console.error(err)
-      res.status(500).json({ error: 'Internal Server Error' })
-  }
-  })
-  
   //Chats
 
   const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
