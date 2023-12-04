@@ -179,7 +179,7 @@ const io = socketIo(server, {
         const prevHiddenItems = prevList.filter(item => item.isVisible === false)
         console.log("log - prev Hidden Items are", prevHiddenItems)
         const prevHiddenItemIds = new Set(prevHiddenItems.map(item => item.id))
-        console.log("log - prev Hidden Ids are", prevHiddenItems)
+        console.log("log - prev Hidden Ids are", prevHiddenItemIds)
   
         const updatedList = data.map(item => {
           if (prevHiddenItemIds.has(item.id)) {
