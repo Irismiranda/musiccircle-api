@@ -172,10 +172,10 @@ const io = socketIo(server, {
         const user = await userDocRef.get()
         const prevData = user.data()
         console.log("log - prev data is:", prevData)
+        const prevList = prevData[category] || null
+        console.log("log - prev list is:", prevList)
 
-        if (prevData) {
-            const prevList = prevData[category] || []
-            console.log("log - prev list is:", prevList)
+        if (prevList) {
             const prevHiddenItems = prevList.items.filter(item => item.isVisible === false)
             console.log("log - prev hidden ites are:", prevHiddenItems)
             const prevHiddenItemIds = new Set(prevHiddenItems.map(item => item.id))
