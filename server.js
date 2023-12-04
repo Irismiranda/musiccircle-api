@@ -171,23 +171,29 @@ const io = socketIo(server, {
     try {
         const user = await userDocRef.get()
         const prevData = user.data()
+        console.log("log - prev data is:", prevData)
 
         if (prevData) {
             const prevList = prevData[category] || []
+            console.log("log - prev list is:", prevList)
             const prevHiddenItems = prevList.items.filter(item => item.isVisible === false)
+            console.log("log - prev hidden ites are:", prevHiddenItems)
             const prevHiddenItemIds = new Set(prevHiddenItems.map(item => item.id))
+            console.log("log - prev hidden item ids:", prevHiddenItemIds)
 
             const updatedItems = data.map(item => {
                 return prevHiddenItemIds.has(item.id) ? { ...item, isVisible: false } : item
             })
+            console.log("log - updated items are:", updatedItems)
 
             const updatedList = {...prevList, items: updatedItems}
-
+            
             // Check if 'show_[category]' needs to be updated
             if (prevList[`show_${category}`] === undefined) {
-                updatedList[`show_${category}`] = true
+              updatedList[`show_${category}`] = true
             }
-
+            
+            console.log("log - updated list is:", updatedList)
             // Perform the update in a single call
             await userDocRef.update(updatedList)
 
