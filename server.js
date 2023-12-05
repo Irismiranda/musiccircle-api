@@ -214,7 +214,7 @@ const io = socketIo(server, {
     }
 })
 
-  app.post('/api/user/top_list/:category/toggleVisibility', async (req, res)  => {
+  app.post('/api/user/:category/toggleVisibility', async (req, res)  => {
     const { userId, itemId } = req.body
     const { category } = req.params
     const userDocRef = admin.firestore().doc(`user/${userId}`)
