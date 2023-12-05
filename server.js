@@ -228,7 +228,7 @@ const io = socketIo(server, {
             const updatedList = {...topList, items: updatedItems}
             const updateObject = { [category]:  updatedList}
 
-            await userDocRef.update(updateObject);
+            await userDocRef.update(updateObject)
             res.json(updateObject)
         } else {
             res.status(404).json({ error: 'User not found.' })
