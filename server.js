@@ -165,7 +165,7 @@ const io = socketIo(server, {
   app.post('/api/user/:category', async (req, res) => {
     const { id, data } = req.body
     const { category } = req.params
-
+    console.log("new data is:", data)
     const userDocRef = admin.firestore().doc(`user/${id}`)
 
     try {
