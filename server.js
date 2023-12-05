@@ -214,6 +214,27 @@ const io = socketIo(server, {
     }
 })
 
+app.get('/api/user/:category/:id', async (req, res)  => {
+  const { id, category } = req.params
+  const userDocRef = admin.firestore().doc(`user/${id}`)
+  try {
+    const doc = await userDocRef.get()
+    const data = doc.data()
+    if (doc.exists) {
+        const item = {
+          [`show_${category}`]: data[`show_${category}`],
+          items: data[category]
+        }
+        res.json(item)
+    } else {
+        res.status(404).json({ error: 'User not found.' })
+    }
+} catch(err) {
+    console.error(err)
+    res.status(500).json({ error: 'Internal Server Error' })
+}
+})
+
   app.post('/api/user/:category/toggleVisibility', async (req, res)  => {
     const { userId, itemId } = req.body
     const { category } = req.params
