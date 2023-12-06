@@ -163,9 +163,10 @@ const io = socketIo(server, {
   })
 
   app.post('/api/user/:category', async (req, res) => {
-    const { id, data } = req.body
+    const { id, items } = req.body
     const { category } = req.params
     const userDocRef = admin.firestore().doc(`user/${id}`)
+    console.log("received items for", category, "are:", items)
 
     try {
         const user = await userDocRef.get()
@@ -179,7 +180,7 @@ const io = socketIo(server, {
             const prevHiddenItemIds = prevHiddenItems.map(item => item.id)
             console.log("prev hidden item ids are:", prevHiddenItemIds)
 
-            const updatedItems = data.map(item => {
+            const updatedItems = items.map(item => {
               console.log("item is:", item, "is hidden:", prevHiddenItemIds.includes(item.id))
               return prevHiddenItemIds.includes(item.id) ? { ...item, isVisible: false } : item
           })
@@ -200,7 +201,7 @@ const io = socketIo(server, {
         } else {
             const newList = {
               [`show_${category}`]: true,
-              items: data,
+              items: items,
             } 
             // In case there's no previous data for this category
             await userDocRef.update({ [category]: newList })
