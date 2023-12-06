@@ -180,9 +180,10 @@ const io = socketIo(server, {
             console.log("prev hidden item ids are:", prevHiddenItemIds)
 
             const updatedItems = data.map(item => {
-                console.log("item is:", item, "does prev data has this id?", prevHiddenItemIds.has(item.id))
-                return prevHiddenItemIds.has(item.id) ? { ...item, isVisible: false } : item
-            })
+              const isHidden = prevHiddenItems.some(hiddenItem => hiddenItem.id === item.id)
+              console.log("item is:", item, "is hidden:", isHidden)
+              return isHidden ? { ...item, isVisible: false } : item
+          })
 
             const updatedList = {...prevList, items: updatedItems}
             
