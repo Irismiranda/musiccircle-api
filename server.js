@@ -142,7 +142,7 @@ const io = socketIo(server, {
 
   // User data
 
-  app.post('/api/profile', async (req, res) => {
+  app.post('/api/account', async (req, res) => {
     const { userData } = req.body
     const { id, type } = userData
 
