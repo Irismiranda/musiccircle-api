@@ -220,12 +220,9 @@ app.get('/api/user/:category/:id', async (req, res)  => {
   try {
     const doc = await userDocRef.get()
     const data = doc.data()
-    if (doc.exists) {
-        const item = {
-          [`show_${category}`]: data[`show_${category}`],
-          items: data[category]
-        }
-        res.json(item)
+    const list = data[category] || null
+    if (list) {
+        res.json(list)
     } else {
         res.status(404).json({ error: 'User not found.' })
     }
