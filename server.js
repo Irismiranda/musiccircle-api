@@ -165,27 +165,21 @@ const io = socketIo(server, {
   app.post('/api/user/:category', async (req, res) => {
     const { id, data } = req.body
     const { category } = req.params
-    console.log("new data is:", data)
     const userDocRef = admin.firestore().doc(`user/${id}`)
 
     try {
         const user = await userDocRef.get()
         const prevData = user.data()
-        console.log("log - prev data is:", prevData)
         const prevList = prevData[category] || null
-        console.log("log - prev list is:", prevList)
 
         if (prevList) {
-            console.log("log - there is a prev list for", category)
             const prevHiddenItems = prevList.items.filter(item => item.isVisible === false)
-            console.log("log - prev hidden items are:", prevHiddenItems)
             const prevHiddenItemIds = new Set(prevHiddenItems.map(item => item.id))
-            console.log("log - prev hidden item ids:", prevHiddenItemIds)
 
             const updatedItems = data.map(item => {
+                console.log("item is:", item, "does prev data has this id?", prevHiddenItemIds.has(item.id))
                 return prevHiddenItemIds.has(item.id) ? { ...item, isVisible: false } : item
             })
-            console.log("log - updated items are:", updatedItems)
 
             const updatedList = {...prevList, items: updatedItems}
             
@@ -194,14 +188,12 @@ const io = socketIo(server, {
               updatedList[`show_${category}`] = true
             }
             
-            console.log("log - updated list is:", updatedList)
             // Perform the update in a single call
             await userDocRef.update({[category]:updatedList})
 
             // Send the updated list as the response
             res.send(updatedList)
         } else {
-          console.log("log - there is no prev list for", category)
             const newList = {
               [`show_${category}`]: true,
               items: data,
