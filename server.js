@@ -185,6 +185,7 @@ const io = socketIo(server, {
           })
 
             const updatedList = {...prevList, items: updatedItems}
+            console.log("updated list is for", category, "is:", updatedList)
             
             // Check if 'show_[category]' exists
             if (prevList[`show_${category}`] === undefined) {
