@@ -176,6 +176,7 @@ const io = socketIo(server, {
         console.log("log - prev list is:", prevList)
 
         if (prevList) {
+            console.log("log - there is a prev list for", category)
             const prevHiddenItems = prevList.items.filter(item => item.isVisible === false)
             console.log("log - prev hidden items are:", prevHiddenItems)
             const prevHiddenItemIds = new Set(prevHiddenItems.map(item => item.id))
@@ -200,6 +201,7 @@ const io = socketIo(server, {
             // Send the updated list as the response
             res.send(updatedList)
         } else {
+          console.log("log - there is no prev list for", category)
             const newList = {
               [`show_${category}`]: true,
               items: data,
