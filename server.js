@@ -181,7 +181,7 @@ const io = socketIo(server, {
 
             const updatedItems = data.map(item => {
               const isHidden = prevHiddenItems.some(hiddenItem => hiddenItem.id === item.id)
-              console.log("item is:", item, "is hidden:", isHidden)
+              console.log("item is:", item, "hidden item id is:", hiddenItem.id, "is hidden:", isHidden)
               return isHidden ? { ...item, isVisible: false } : item
           })
 
