@@ -231,7 +231,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 }
 })
 
-  app.post('/api/user/:category/toggleVisibility', async (req, res)  => {
+  app.post('/api/user/:category/hide_item', async (req, res)  => {
     const { userId, itemId } = req.body
     const { category } = req.params
     const userDocRef = admin.firestore().doc(`user/${userId}`)
@@ -255,6 +255,28 @@ app.get('/api/user/:category/:id', async (req, res)  => {
         res.status(500).json({ error: 'Internal Server Error' })
     }
 })
+
+  app.post('/api/user/:category/hide_category', async (req, res) => {
+    const { userId } = req.body
+    const { category } = req.params
+
+    const userDocRef = admin.firestore().doc(`user/${userId}`)
+
+    try {
+      const doc = await userDocRef.get()
+      if (doc.exists) {
+          const userData = doc.data()
+          const topList = userData[category]
+          const updatedList = {...topList, [`show_${category}`]: !topList[`show_${category}`]}
+          await userDocRef.update(updatedList)
+      } else {
+          res.status(404).json({ error: 'User not found.' })
+      }
+  } catch(err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal Server Error' })
+  }
+  })
 
   //Chats
 
