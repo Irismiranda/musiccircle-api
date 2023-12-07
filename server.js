@@ -117,7 +117,7 @@ const io = socketIo(server, {
     try {
       const response = await axios({
         method: 'get',
-        url: `https://emoji-api.com/categories/${category}?access_key=${emoji_api_key}`,
+        url: `https://emoji-api.com/categories/top_${category}?access_key=${emoji_api_key}`,
       })
       res.json(response.data)
     } catch (err) {
