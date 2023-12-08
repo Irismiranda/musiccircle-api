@@ -244,7 +244,7 @@ const io = socketIo(server, {
         const updatedLoggedUser = await loggedUserDocRef.get()
         const updatedCurrentUser = await currentUserDocRef.get()
 
-        const udaptaedIsFollowing = updatedLoggedUser.includes(currentUserId)
+        const udaptaedIsFollowing = updatedLoggedUser.data().includes(currentUserId)
 
         res.send({isFollowing: udaptaedIsFollowing, updatedLoggedUser: updatedLoggedUser.data().userData, updatedCurrentUser: updatedCurrentUser.data().userData})
       } catch(error){
