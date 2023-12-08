@@ -230,8 +230,13 @@ const io = socketIo(server, {
         loggedUserFollowing.push(currentUserId)
         currentUserFollowers.push(loggedUserId)
 
-        await loggedUserDocRef.update.arrayUnion({ following: following })
-        await currentUserDocRef.update.arrayUnion({ following_you: currentUserFollowers })
+        await loggedUserDocRef.update({
+          following: admin.firestore.FieldValue.arrayUnion(currentUserId)
+        })
+
+        await currentUserDocRef.update({
+          following_you: admin.firestore.FieldValue.arrayUnion(loggedUserId)
+        })
 
         res.send({isFollowing: true})
       }
