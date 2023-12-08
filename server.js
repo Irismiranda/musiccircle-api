@@ -162,6 +162,50 @@ const io = socketIo(server, {
       }
   })
 
+  app.get('/api/:loggedUserId/is_following/:currentUserId', async (req, res) => {
+    const { loggedUserId, currentUserId} = req.params
+  
+    try {
+      const userDocRef = admin.firestore().doc(`user/${loggedUserId}`)
+      const doc = await userDocRef.get()
+      const userData = doc.data()
+
+      const isFollowing = Array.isArray(userData.followers) && userData.followers.some(user => user === currentUserId)
+      res.send(isFollowing)
+
+    } catch (error) {
+        console.error(error)
+        res.status(500).send('Internal Server Error')
+    }
+  })
+
+  app.post('/api/:loggedUserId/toggle_follow/:currentUserId', async (req, res) => {
+    const { loggedUserId, currentUserId} = req.params
+    const { isFollowing } = req.body
+
+    try {
+      const userDocRef = admin.firestore().doc(`user/${loggedUserId}`)
+      const doc = await userDocRef.get()
+      const userData = doc.data()
+      const followers = userData.followers || []
+
+      if (followers.includes(currentUserId)) {
+        await userDocRef.update({
+          followers: admin.firestore.FieldValue.arrayRemove(currentUserId)
+        })
+        res.send({isFollowing: false})
+      } else {
+        followers.push(currentUserId)
+        await userDocRef.update({ followers })
+        res.send({isFollowing: true})
+      }
+
+    } catch (error) {
+      console.error(error)
+      res.status(500).send('Internal Server Error')
+    }
+  })
+
   app.post('/api/user/:category', async (req, res) => {
     const { id, items } = req.body
     const { category } = req.params
