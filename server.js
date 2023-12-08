@@ -190,7 +190,7 @@ const io = socketIo(server, {
       const doc = await loggedUserDocRef.get()
       const loggedUserData = doc.data()
 
-      const isFollowing = Array.isArray(loggedUserData.following) && loggedUserData.following.some(user => user === currentUserId)
+      const isFollowing = Array.isArray(loggedUserData.userData.following) && loggedUserData.userData.following.some(user => user === currentUserId)
       res.send(isFollowing)
 
     } catch (error) {
@@ -212,16 +212,16 @@ const io = socketIo(server, {
       const loggedUserData = loggedUserDoc.data()
       const currentUserData = currentUserDoc.data()
 
-      const loggedUserFollowing = loggedUserData.following || []
-      const currentUserFollowers = currentUserData.following_you || []
+      const loggedUserFollowing = loggedUserData.userData.following || []
+      const currentUserFollowers = currentUserData.userData.following_you || []
 
       if (loggedUserFollowing.includes(currentUserId)) {
         await loggedUserDocRef.update({
-          following: admin.firestore.FieldValue.arrayRemove(currentUserId)
+          'userData.following': admin.firestore.FieldValue.arrayRemove(currentUserId)
         })
 
-        await currentUserFollowers.update({
-          following_you: admin.firestore.FieldValue.arrayRemove(loggedUserId)
+        await currentUserDocRef.update({
+          'userData.following_you': admin.firestore.FieldValue.arrayRemove(loggedUserId)
         })
 
         res.send({isFollowing: false})
@@ -231,11 +231,11 @@ const io = socketIo(server, {
         currentUserFollowers.push(loggedUserId)
 
         await loggedUserDocRef.update({
-          following: admin.firestore.FieldValue.arrayUnion(currentUserId)
+          'userData.following': admin.firestore.FieldValue.arrayUnion(currentUserId)
         })
 
         await currentUserDocRef.update({
-          following_you: admin.firestore.FieldValue.arrayUnion(loggedUserId)
+          'userData.following_you': admin.firestore.FieldValue.arrayUnion(loggedUserId)
         })
 
         res.send({isFollowing: true})
