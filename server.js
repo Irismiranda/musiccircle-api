@@ -143,19 +143,19 @@ const io = socketIo(server, {
   // User data
 
   app.post('/api/account', async (req, res) => {
-    const { userData } = req.body
-    const { id, type } = userData
+    const { loggedUserData } = req.body
+    const { id, type } = loggedUserData
 
     try {
-      const userDocRef = admin.firestore().doc(`${type}/${id}`)
-      const userDoc = await userDocRef.get()
+      const loggedUserDocRef = admin.firestore().doc(`${type}/${id}`)
+      const userDoc = await loggedUserDocRef.get()
 
       if (userDoc.exists) {
-          console.log("log -", userDoc.data().userData)
-          res.json(userDoc.data().userData)
+          console.log("log -", userDoc.data().loggedUserData)
+          res.json(userDoc.data().loggedUserData)
         } else {  
-          await userDocRef.set({userData})
-          res.json(userData)
+          await loggedUserDocRef.set({loggedUserData})
+          res.json(loggedUserData)
         }
       } catch(err){
         console.log(err)
@@ -166,11 +166,11 @@ const io = socketIo(server, {
     const { loggedUserId, currentUserId} = req.params
   
     try {
-      const userDocRef = admin.firestore().doc(`user/${loggedUserId}`)
-      const doc = await userDocRef.get()
-      const userData = doc.data()
+      const loggedUserDocRef = admin.firestore().doc(`user/${loggedUserId}`)
+      const doc = await loggedUserDocRef.get()
+      const loggedUserData = doc.data()
 
-      const isFollowing = Array.isArray(userData.followers) && userData.followers.some(user => user === currentUserId)
+      const isFollowing = Array.isArray(loggedUserData.following) && loggedUserData.following.some(user => user === currentUserId)
       res.send(isFollowing)
 
     } catch (error) {
@@ -181,22 +181,38 @@ const io = socketIo(server, {
 
   app.post('/api/:loggedUserId/toggle_follow/:currentUserId', async (req, res) => {
     const { loggedUserId, currentUserId} = req.params
-    const { isFollowing } = req.body
 
     try {
-      const userDocRef = admin.firestore().doc(`user/${loggedUserId}`)
-      const doc = await userDocRef.get()
-      const userData = doc.data()
-      const followers = userData.followers || []
+      const loggedUserDocRef = admin.firestore().doc(`user/${loggedUserId}`)
+      const currentUserDocRef = admin.firestore().doc(`user/${currentUserId}`)
 
-      if (followers.includes(currentUserId)) {
-        await userDocRef.update({
-          followers: admin.firestore.FieldValue.arrayRemove(currentUserId)
+      const loggedUserDoc = await loggedUserDocRef.get()
+      const currentUserDoc = await currentUserDocRef.get()
+
+      const loggedUserData = loggedUserDoc.data()
+      const currentUserData = currentUserDoc.data()
+
+      const loggedUserFollowing = loggedUserData.following || []
+      const currentUserFollowers = currentUserData.following_you || []
+
+      if (loggedUserFollowing.includes(currentUserId)) {
+        await loggedUserDocRef.update({
+          following: admin.firestore.FieldValue.arrayRemove(currentUserId)
         })
+
+        await currentUserFollowers.update({
+          following_you: admin.firestore.FieldValue.arrayRemove(loggedUserId)
+        })
+
         res.send({isFollowing: false})
       } else {
-        followers.push(currentUserId)
-        await userDocRef.update({ followers })
+
+        loggedUserFollowing.push(currentUserId)
+        currentUserFollowers.push(loggedUserId)
+
+        await loggedUserDocRef.update({ following: following })
+        await currentUserDocRef.update({ following_you: currentUserFollowers })
+
         res.send({isFollowing: true})
       }
 
@@ -209,11 +225,11 @@ const io = socketIo(server, {
   app.post('/api/user/:category', async (req, res) => {
     const { id, items } = req.body
     const { category } = req.params
-    const userDocRef = admin.firestore().doc(`user/${id}`)
+    const loggedUserDocRef = admin.firestore().doc(`user/${id}`)
     console.log("received items for", category, "are:", items)
 
     try {
-        const user = await userDocRef.get()
+        const user = await loggedUserDocRef.get()
         const prevData = user.data()
         const prevList = prevData[category] || null
 
@@ -238,7 +254,7 @@ const io = socketIo(server, {
             }
             
             // Perform the update in a single call
-            await userDocRef.update({[category]:updatedList})
+            await loggedUserDocRef.update({[category]:updatedList})
 
             // Send the updated list as the response
             res.send(updatedList)
@@ -248,7 +264,7 @@ const io = socketIo(server, {
               items: items,
             } 
             // In case there's no previous data for this category
-            await userDocRef.update({ [category]: newList })
+            await loggedUserDocRef.update({ [category]: newList })
             res.send(newList)
         }
     } catch(err) {
@@ -259,9 +275,9 @@ const io = socketIo(server, {
 
 app.get('/api/user/:category/:id', async (req, res)  => {
   const { id, category } = req.params
-  const userDocRef = admin.firestore().doc(`user/${id}`)
+  const loggedUserDocRef = admin.firestore().doc(`user/${id}`)
   try {
-    const doc = await userDocRef.get()
+    const doc = await loggedUserDocRef.get()
     const data = doc.data()
     const list = data[category] || null
     if (list) {
@@ -278,18 +294,18 @@ app.get('/api/user/:category/:id', async (req, res)  => {
   app.post('/api/user/:category/hide_item', async (req, res)  => {
     const { userId, itemId } = req.body
     const { category } = req.params
-    const userDocRef = admin.firestore().doc(`user/${userId}`)
+    const loggedUserDocRef = admin.firestore().doc(`user/${userId}`)
 
     try {
-        const doc = await userDocRef.get()
+        const doc = await loggedUserDocRef.get()
         if (doc.exists) {
-            const userData = doc.data()
-            const topList = userData[category]
+            const loggedUserData = doc.data()
+            const topList = loggedUserData[category]
             const updatedItems = topList.items.map(item => item.id === itemId ? {...item, isVisible: !item.isVisible } : item)
             const updatedList = {...topList, items: updatedItems}
             const updateObject = { [category]:  updatedList}
 
-            await userDocRef.update(updateObject)
+            await loggedUserDocRef.update(updateObject)
             res.json(updateObject)
         } else {
             res.status(404).json({ error: 'User not found.' })
@@ -306,17 +322,17 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
     console.log("userId is:", userId, "category is:", category)
 
-    const userDocRef = admin.firestore().doc(`user/${userId}`)
+    const loggedUserDocRef = admin.firestore().doc(`user/${userId}`)
 
     try {
-      const doc = await userDocRef.get()
+      const doc = await loggedUserDocRef.get()
       if (doc.exists) {
-          const userData = doc.data()
-          const topList = userData[category]
+          const loggedUserData = doc.data()
+          const topList = loggedUserData[category]
           console.log("top list is:", topList)
           const updatedList = {...topList, [`show_${category}`]: !topList[`show_${category}`]}
           const updatedObject = { [category]: updatedList}
-          await userDocRef.update(updatedObject)
+          await loggedUserDocRef.update(updatedObject)
           res.send(updatedList)
       } else {
           res.status(404).json({ error: 'User not found.' })
