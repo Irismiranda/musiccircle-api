@@ -385,61 +385,41 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     socket.on('connectToChat', async ({ id, type }) => {
       try {
         const chatCollectionRef = admin.firestore().collection(`${type}/${id}/chats`)
-        const existingChatQuery = await chatCollectionRef.get()
-
-        let currentChatId = ''
-
+        const existingChatQuery = await chatCollectionRef.get();
+        let currentChatId = '';
+    
         if (existingChatQuery.size > 0) {
-          existingChatQuery.forEach((doc) => {
-            currentChatId = doc.id
-          })
+          currentChatId = existingChatQuery.docs[0].id
           console.log('Found existing chat:', currentChatId)
-          } else {
-            const newChatId = `${id}_${uuidv4()}`
-            console.log('New chat id is:', newChatId)
-      
-            await chatCollectionRef.doc(newChatId).set({})
-
-            currentChatId = newChatId
-            console.log('New chat created', currentChatId)
-          }
-
-          let isFirstSnapshot = true
-
-          console.log("is this the first snapshot?:", isFirstSnapshot)
-
-          const messagesRef = admin.firestore().collection(`${type}/${id}/chats/${currentChatId}/messages`)
-          console.log("messages ref is:", `${type}/${id}/chats/${currentChatId}/messages`)
-          messagesRef.onSnapshot((snapshot) => {
-          const messages = []
-          
-          snapshot.docChanges().forEach((change) => {
-            if (change.type === 'added' || change.type === 'modified') {
-              const newMessage = change.doc.data()
-              console.log('New message is:', newMessage)
-              messages.push(newMessage)
-            }   
-          })
-
-          if(isFirstSnapshot){
-            console.log("is this the first snapshot?:", isFirstSnapshot)
+        } else {
+          const newChatId = `${id}_${uuidv4()}`
+          console.log('New chat id is:', newChatId)
+          await chatCollectionRef.doc(newChatId).set({})
+          currentChatId = newChatId;
+          console.log('New chat created', currentChatId)
+        }
+    
+        let isFirstSnapshot = true;
+        const messagesRef = admin.firestore().collection(`${type}/${id}/chats/${currentChatId}/messages`)
+        messagesRef.onSnapshot((snapshot) => {
+          const messages = snapshot.docChanges()
+            .filter(change => change.type === 'added' || change.type === 'modified')
+            .map(change => change.doc.data());
+    
+          if (isFirstSnapshot) {
             io.to(currentChatId).emit('loadAllMessages', messages)
-            console.log('all messages loaded:', messages)
-            isFirstSnapshot = false
+            isFirstSnapshot = false;
           } else {
-            console.log("is this the first snapshot?:", isFirstSnapshot)
             io.to(currentChatId).emit('loadNewMessage', messages)
-            console.log('new message loaded:', messages)
           }
         })
-
-        socket.join(currentChatId)
+    
+        socket.join(currentChatId);
         console.log('User connected to chat', currentChatId)
         socket.emit('gotChat', currentChatId)
       } catch (error) {
         console.error('Error creating/updating chat:', error)
       }
-      
     })
 
     socket.on('sendMessage', async ( newMessage ) => {
