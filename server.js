@@ -162,6 +162,26 @@ const io = socketIo(server, {
       }
   })
 
+  app.post('/api/account', async (req, res) => {
+    const { userData } = req.body
+    const { id, type } = userData
+
+    try {
+      const userDocRef = admin.firestore().doc(`${type}/${id}`)
+      const userDoc = await userDocRef.get()
+
+      if (userDoc.exists) {
+          console.log("log -", userDoc.data().userData)
+          res.json(userDoc.data().userData)
+        } else {  
+          await userDocRef.set({userData})
+          res.json(userData)
+        }
+      } catch(err){
+        console.log(err)
+      }
+  })
+
   app.get('/api/:loggedUserId/is_following/:currentUserId', async (req, res) => {
     const { loggedUserId, currentUserId} = req.params
   
@@ -221,6 +241,57 @@ const io = socketIo(server, {
       res.status(500).send('Internal Server Error')
     }
   })
+
+  app.post('/api/user/:category', async (req, res) => {
+    const { id, items } = req.body
+    const { category } = req.params
+    const userDocRef = admin.firestore().doc(`user/${id}`)
+    console.log("received items for", category, "are:", items)
+
+    try {
+        const user = await userDocRef.get()
+        const prevData = user.data()
+        const prevList = prevData[category] || null
+
+        if (prevList) {
+            const prevHiddenItems = prevList.items.filter(item => item.isVisible === false)
+            console.log("prev hidden items are:", prevHiddenItems)
+
+            const prevHiddenItemIds = prevHiddenItems.map(item => item.id)
+            console.log("prev hidden item ids are:", prevHiddenItemIds)
+
+            const updatedItems = items.map(item => {
+              console.log("item is:", item, "is hidden:", prevHiddenItemIds.includes(item.id))
+              return prevHiddenItemIds.includes(item.id) ? { ...item, isVisible: false } : item
+          })
+
+            const updatedList = {...prevList, items: updatedItems}
+            console.log("updated list for", category, "is:", updatedList)
+            
+            // Check if 'show_[category]' exists
+            if (prevList[`show_${category}`] === undefined) {
+              updatedList[`show_${category}`] = true
+            }
+            
+            // Perform the update in a single call
+            await userDocRef.update({[category]:updatedList})
+
+            // Send the updated list as the response
+            res.send(updatedList)
+        } else {
+            const newList = {
+              [`show_${category}`]: true,
+              items: items,
+            } 
+            // In case there's no previous data for this category
+            await userDocRef.update({ [category]: newList })
+            res.send(newList)
+        }
+    } catch(err) {
+        console.error(err)
+        res.status(500).json({ error: 'Internal Server Error' })
+    }
+})
 
 app.get('/api/user/:category/:id', async (req, res)  => {
   const { id, category } = req.params
