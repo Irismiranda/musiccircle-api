@@ -260,6 +260,8 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     const { userId } = req.body
     const { category } = req.params
 
+    console.log("userId is:", userId, "category is:", category)
+
     const userDocRef = admin.firestore().doc(`user/${userId}`)
 
     try {
@@ -267,8 +269,11 @@ app.get('/api/user/:category/:id', async (req, res)  => {
       if (doc.exists) {
           const userData = doc.data()
           const topList = userData[category]
+          console.log("top list is:", topList)
           const updatedList = {...topList, [`show_${category}`]: !topList[`show_${category}`]}
-          await userDocRef.update(updatedList)
+          const updatedObject = { [category]: updatedList}
+          await userDocRef.update(updatedObject)
+          res.send(updatedList)
       } else {
           res.status(404).json({ error: 'User not found.' })
       }
