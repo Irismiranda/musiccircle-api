@@ -212,8 +212,8 @@ const io = socketIo(server, {
       const loggedUserData = loggedUserDoc.data()
       const currentUserData = currentUserDoc.data()
 
-      const loggedUserFollowing = loggedUserData.following || []
-      const currentUserFollowers = currentUserData.following_you || []
+      const loggedUserFollowing = loggedUserData?.following || []
+      const currentUserFollowers = currentUserData?.following_you || []
 
       if (loggedUserFollowing.includes(currentUserId)) {
         await loggedUserDocRef.update({
