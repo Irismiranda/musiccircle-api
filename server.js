@@ -215,7 +215,9 @@ const io = socketIo(server, {
       const loggedUserFollowing = loggedUserData.userData.following || []
       const currentUserFollowers = currentUserData.userData.following_you || []
 
-      if (loggedUserFollowing.includes(currentUserId)) {
+      const isFollowing = loggedUserFollowing.includes(currentUserId)
+
+      if (isFollowing) {
         await loggedUserDocRef.update({
           'userData.following': admin.firestore.FieldValue.arrayRemove(currentUserId)
         })
@@ -224,7 +226,6 @@ const io = socketIo(server, {
           'userData.following_you': admin.firestore.FieldValue.arrayRemove(loggedUserId)
         })
 
-        res.send({isFollowing: false})
       } else {
 
         loggedUserFollowing.push(currentUserId)
@@ -237,8 +238,13 @@ const io = socketIo(server, {
         await currentUserDocRef.update({
           'userData.following_you': admin.firestore.FieldValue.arrayUnion(loggedUserId)
         })
+      }
 
-        res.send({isFollowing: true})
+      try{
+        const updatedLoggedUser = await loggedUserDocRef.get()
+        res.send({isFollowing: isFollowing, updatedLoggedUser: updatedLoggedUser.data()})
+      } catch(error){
+        console.log(error)
       }
 
     } catch (error) {
