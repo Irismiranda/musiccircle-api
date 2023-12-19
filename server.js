@@ -7,6 +7,7 @@ const querystring = require('querystring')
 const admin = require('firebase-admin')
 const functions = require('firebase-functions')
 const { v4: uuidv4 } = require('uuid')
+const { query, where, getDocs, limit } = admin.firestore
 
 const port = process.env.PORT
 const app = express()
@@ -140,15 +141,13 @@ const io = socketIo(server, {
   // Firestore 
 
   // User data
-  
-  const firestore = admin.firestore()
 
   app.post('/api/account', async (req, res) => {
     const { userData } = req.body
     const { id, type } = userData
 
     try {
-      const userDocRef = firestore.doc(`${type}/${id}`)
+      const userDocRef = admin.firestore().doc(`${type}/${id}`)
       const userDoc = await userDocRef.get()
 
       if (userDoc.exists) {
@@ -168,7 +167,7 @@ const io = socketIo(server, {
     const { id, type } = userData
 
     try {
-      const userDocRef = firestore.doc(`${type}/${id}`)
+      const userDocRef = admin.firestore().doc(`${type}/${id}`)
       const userDoc = await userDocRef.get()
 
       if (userDoc.exists) {
@@ -187,7 +186,7 @@ const io = socketIo(server, {
     const { loggedUserId, currentUserId} = req.params
   
     try {
-      const loggedUserDocRef = firestore.doc(`user/${loggedUserId}`)
+      const loggedUserDocRef = admin.firestore().doc(`user/${loggedUserId}`)
       const doc = await loggedUserDocRef.get()
       const loggedUserData = doc.data()
 
@@ -204,8 +203,8 @@ const io = socketIo(server, {
     const { loggedUserId, currentUserId} = req.params
 
     try {
-      const loggedUserDocRef = firestore.doc(`user/${loggedUserId}`)
-      const currentUserDocRef = firestore.doc(`user/${currentUserId}`)
+      const loggedUserDocRef = admin.firestore().doc(`user/${loggedUserId}`)
+      const currentUserDocRef = admin.firestore().doc(`user/${currentUserId}`)
 
       const loggedUserDoc = await loggedUserDocRef.get()
       const currentUserDoc = await currentUserDocRef.get()
@@ -261,7 +260,7 @@ const io = socketIo(server, {
   app.post('/api/user/:category', async (req, res) => {
     const { id, items } = req.body
     const { category } = req.params
-    const userDocRef = firestore.doc(`user/${id}`)
+    const userDocRef = admin.firestore().doc(`user/${id}`)
     console.log("received items for", category, "are:", items)
 
     try {
@@ -311,7 +310,7 @@ const io = socketIo(server, {
 
 app.get('/api/user/:category/:id', async (req, res)  => {
   const { id, category } = req.params
-  const userDocRef = firestore.doc(`user/${id}`)
+  const userDocRef = admin.firestore().doc(`user/${id}`)
   try {
     const doc = await userDocRef.get()
     const data = doc.data()
@@ -330,7 +329,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
   app.post('/api/user/:category/hide_item', async (req, res)  => {
     const { userId, itemId } = req.body
     const { category } = req.params
-    const userDocRef = firestore.doc(`user/${userId}`)
+    const userDocRef = admin.firestore().doc(`user/${userId}`)
 
     try {
         const doc = await userDocRef.get()
@@ -358,7 +357,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
     console.log("userId is:", userId, "category is:", category)
 
-    const userDocRef = firestore.doc(`user/${userId}`)
+    const userDocRef = admin.firestore().doc(`user/${userId}`)
 
     try {
       const doc = await userDocRef.get()
@@ -381,7 +380,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
   app.get('/api/search/user/:search_term', async (req, res) => {
     const { search_term } = req.params
-    const collectionRef = firestore.collection('users')
+    const collectionRef = admin.firestore().collection('users')
     
     console.log("search term is", search_term)
     
@@ -425,7 +424,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     
     socket.on('connectToChat', async ({ id, type }) => {
       try {
-        const chatCollectionRef = firestore.collection(`${type}/${id}/chats`)
+        const chatCollectionRef = admin.firestore().collection(`${type}/${id}/chats`)
         const existingChatQuery = await chatCollectionRef.get();
         let currentChatId = '';
     
@@ -441,7 +440,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
         }
     
         let isFirstSnapshot = true;
-        const messagesRef = firestore.collection(`${type}/${id}/chats/${currentChatId}/messages`)
+        const messagesRef = admin.firestore().collection(`${type}/${id}/chats/${currentChatId}/messages`)
         messagesRef.onSnapshot((snapshot) => {
           const messages = snapshot.docChanges()
             .filter(change => change.type === 'added' || change.type === 'modified')
@@ -467,7 +466,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
       console.log('new message data is:', newMessage)
 
       const { messageId, id, chatId } = newMessage
-      const docRef = firestore.collection(`artists/${id}/chats/${chatId}/messages`).doc(messageId)
+      const docRef = admin.firestore().collection(`artists/${id}/chats/${chatId}/messages`).doc(messageId)
 
       try {
         await docRef.set(newMessage)
@@ -477,7 +476,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
         if (messagesSnapshot.size > 100) {
 
           const messagesToDelete = messagesSnapshot.size - 100
-          const batch = firestore.batch()
+          const batch = admin.firestore().batch()
           messagesSnapshot.docs.slice(0, messagesToDelete).forEach(doc => {
             batch.delete(doc.ref)
           })
@@ -490,7 +489,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     })
 
     socket.on('removeMessage', async ({ id, chatId, messageId }) => {
-      const messageRef =  firestore.doc(`artists/${id}/chats/${chatId}/messages/${messageId}`)
+      const messageRef =  admin.firestore().doc(`artists/${id}/chats/${chatId}/messages/${messageId}`)
       try {
           await messageRef.update({
               display: false
