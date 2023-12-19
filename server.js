@@ -380,33 +380,25 @@ app.get('/api/user/:category/:id', async (req, res)  => {
   app.get('/api/search/user/:search_term', async (req, res) => {
     const { search_term } = req.params
     const collectionRef = admin.firestore().collection('users')
+    const normalizedSearchTerm = normalize(search_term).replace(/[\u0300-\u036f]/g, '').toLowerCase()
     
     try{
-      const querySnapshot = await collectionRef
-      .where('display_name', '>=', search_term)
-      .where('display_name', '<=', search_term + '\uf8ff')
-      .get()
+      const querySnapshot = await getDocs(
+        query(collectionRef,
+          where('display_name', 'contains', normalizedSearchTerm),
+          where('id', 'contains', normalizedSearchTerm)
+        )
+      )
 
-    const users = []
-    querySnapshot.forEach((doc) => {
-      const userData = doc.data()
-      users.push(userData)
-    })
-
-    if (users.length === 0) {
-      const idQuerySnapshot = await collectionRef
-        .where('id', '==', search_term)
-        .get();
-
-      idQuerySnapshot.forEach((doc) => {
+      const users = []
+      querySnapshot.forEach((doc) => {
         const userData = doc.data()
         users.push(userData)
       })
-    }
+      
+      res.send(users)
     
-    res.send(users)
-    
-  } catch(err){
+    } catch(err){
       console.log(err)
     }
   })
