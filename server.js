@@ -385,12 +385,14 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     console.log("search term is", search_term)
     
     try{
-      const querySnapshot = query(collectionRef,
-          or(where('display_name', 'contains', search_term),
-            where('id', 'contains', search_term),
-          ),
-        limit(50)
-      ) 
+      const querySnapshot = await collectionRef
+      .where(
+        Filter.or(
+          Filter.where('display_name', 'contains', search_term),
+          Filter.where('id', 'contains', search_term)
+        )
+      )
+      .get()
       
       const results =  await getDocs(querySnapshot)
       const users = []
