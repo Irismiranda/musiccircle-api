@@ -7,7 +7,6 @@ const socketIo = require('socket.io')
 const querystring = require('querystring')
 const admin = require('firebase-admin')
 const { v4: uuidv4 } = require('uuid')
-//const fs = require('fs')
 
 const port = process.env.PORT
 const app = express()
@@ -393,6 +392,17 @@ app.get('/api/user/:category/:id', async (req, res)  => {
       const userData = doc.data()
       users.push(userData)
     })
+
+    if (users.length === 0) {
+      const idQuerySnapshot = await collectionRef
+        .where('id', '==', search_term)
+        .get();
+
+      idQuerySnapshot.forEach((doc) => {
+        const userData = doc.data()
+        users.push(userData)
+      })
+    }
     
     res.send(users)
     
