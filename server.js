@@ -383,15 +383,16 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     const normalizedSearchTerm = normalize(search_term).replace(/[\u0300-\u036f]/g, '').toLowerCase()
     
     try{
-      const querySnapshot = await getDocs(
-        query(collectionRef,
+      const querySnapshot = query(collectionRef,
           where('display_name', 'contains', normalizedSearchTerm),
-          where('id', 'contains', normalizedSearchTerm)
+          where('id', 'contains', normalizedSearchTerm),
+          limit(50)
         )
-      )
-
+      
+      const results =  await getDocs(querySnapshot)
       const users = []
-      querySnapshot.forEach((doc) => {
+      
+      results.forEach((doc) => {
         const userData = doc.data()
         users.push(userData)
       })
