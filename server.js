@@ -6,8 +6,8 @@ const socketIo = require('socket.io')
 const querystring = require('querystring')
 const admin = require('firebase-admin')
 const functions = require('firebase-functions')
+const { query, where, limit } = require('firebase/firestore')
 const { v4: uuidv4 } = require('uuid')
-const { query, where, getDocs, limit } = admin.firestore
 
 const port = process.env.PORT
 const app = express()
