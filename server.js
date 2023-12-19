@@ -381,6 +381,8 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     const { search_term } = req.params
     const collectionRef = admin.firestore().collection('users')
     const normalizedSearchTerm = normalize(search_term).replace(/[\u0300-\u036f]/g, '').toLowerCase()
+
+    console.log("search term is", normalizedSearchTerm)
     
     try{
       const querySnapshot = query(collectionRef,
@@ -391,10 +393,14 @@ app.get('/api/user/:category/:id', async (req, res)  => {
       
       const results =  await getDocs(querySnapshot)
       const users = []
-      
+
+      console.log("results are:", results)
+
       results.forEach((doc) => {
         const userData = doc.data()
         users.push(userData)
+
+        console.log("user data is", userData)
       })
       
       res.send(users)
