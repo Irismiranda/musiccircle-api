@@ -141,7 +141,7 @@ const io = socketIo(server, {
 
   // User data
   
-  const firestore = firestore
+  const firestore = admin.firestore()
 
   app.post('/api/account', async (req, res) => {
     const { userData } = req.body
