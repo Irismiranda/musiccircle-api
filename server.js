@@ -380,6 +380,9 @@ app.get('/api/user/:category/:id', async (req, res)  => {
   app.get('/api/search/user/:search_term', async (req, res) => {
     const { search_term } = req.params
     const collectionRef = admin.firestore().collection('users')
+    
+    console.log("search term is", search_term)
+
     const normalizedSearchTerm = normalize(search_term).replace(/[\u0300-\u036f]/g, '').toLowerCase()
 
     console.log("search term is", normalizedSearchTerm)
