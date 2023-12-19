@@ -379,7 +379,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
   app.get('/api/search/user/:search_term', async (req, res) => {
     const { search_term } = req.params
-    const collectionRef = admin.firestore().collection('users')
+    const collectionRef = admin.firestore().collection('user')
     
     console.log("search term is", search_term)
     
