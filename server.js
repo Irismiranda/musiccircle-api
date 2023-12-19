@@ -8,7 +8,7 @@ const admin = require('firebase-admin')
 const functions = require('firebase-functions')
 const { v4: uuidv4 } = require('uuid')
 
-const { query, where, getDocs } = admin.firestore
+const { query } = admin.firestore
 
 const port = process.env.PORT
 const app = express()
