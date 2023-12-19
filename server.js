@@ -378,6 +378,29 @@ app.get('/api/user/:category/:id', async (req, res)  => {
   }
   })
 
+  app.get('/api/user/search/:search_term', async (req, res) => {
+    const { search_term } = req.params
+    const collectionRef = admin.firestore().collection('users')
+    
+    try{
+      const querySnapshot = await collectionRef
+      .where('display_name', '>=', search_term)
+      .where('display_name', '<=', search_term + '\uf8ff')
+      .get()
+
+    const users = []
+    querySnapshot.forEach((doc) => {
+      const userData = doc.data()
+      users.push(userData)
+    })
+    
+    res.send(users)
+    
+  } catch(err){
+      console.log(err)
+    }
+  })
+
   //Chats
 
   const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
