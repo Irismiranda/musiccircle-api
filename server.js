@@ -4,9 +4,10 @@ const dotenv = require('dotenv')
 const axios = require('axios')
 const socketIo = require('socket.io')
 const querystring = require('querystring')
+const { v4: uuidv4 } = require('uuid')
+const {Firestore} = require('@google-cloud/firestore')
 const admin = require('firebase-admin')
 const functions = require('firebase-functions')
-const { v4: uuidv4 } = require('uuid')
 
 const port = process.env.PORT
 const app = express()
@@ -414,12 +415,14 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
   //Chats
 
+  const firestore = new Firestore()
   const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
 
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: 'https://<your-database-name>.firebaseio.com',
   })
+
 
   io.on('connection', (socket) => {
     console.log('Client connected')
