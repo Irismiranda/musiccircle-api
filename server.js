@@ -386,10 +386,11 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     
     try{
       const querySnapshot = query(collectionRef,
-          where('display_name', 'contains', search_term),
-          where('id', 'contains', search_term),
-          limit(50)
-        )
+          or(where('display_name', 'contains', search_term),
+            where('id', 'contains', search_term),
+          ),
+        limit(50)
+      ) 
       
       const results =  await getDocs(querySnapshot)
       const users = []
