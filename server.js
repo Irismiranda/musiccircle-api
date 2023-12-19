@@ -382,15 +382,11 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     const collectionRef = admin.firestore().collection('users')
     
     console.log("search term is", search_term)
-
-    const normalizedSearchTerm = normalize(search_term).replace(/[\u0300-\u036f]/g, '').toLowerCase()
-
-    console.log("search term is", normalizedSearchTerm)
     
     try{
       const querySnapshot = query(collectionRef,
-          where('display_name', 'contains', normalizedSearchTerm),
-          where('id', 'contains', normalizedSearchTerm),
+          where('display_name', 'contains', search_term),
+          where('id', 'contains', search_term),
           limit(50)
         )
       
