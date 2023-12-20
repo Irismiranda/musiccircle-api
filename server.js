@@ -404,8 +404,9 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
       if (users.length < 20) {
         const idResults = await firestore.collection('users')
-            .where('id', '==', normalizedSearchTerm)
-            .limit(20 - users.length)  // Limit the results to fill the remaining space
+            .where('id', '>=', search_term)
+            .where('id', '<=', search_term + '\uf8ff')
+            .limit(20 - users.length)
             .get();
 
         idResults.forEach((doc) => {
