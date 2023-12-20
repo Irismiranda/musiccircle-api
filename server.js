@@ -409,9 +409,9 @@ app.get('/api/user/:category/:id', async (req, res)  => {
             .get();
 
         idResults.forEach((doc) => {
-            const userData = doc.data();
+            const userData = doc.data()
             if (!users.some((u) => u.id === userData.id)) {
-                users.push(userData);
+                users.push(userData)
             }
         })
     }
