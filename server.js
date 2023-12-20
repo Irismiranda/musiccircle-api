@@ -336,6 +336,9 @@ app.get('/api/user/:category/:id', async (req, res)  => {
         if (doc.exists) {
             const userData = doc.data()
             const topList = userData[category]
+
+            console.log("top list is", topList)
+            
             const updatedItems = topList.items.map(item => item.id === itemId ? {...item, isVisible: !item.isVisible } : item)
             const updatedList = {...topList, items: updatedItems}
             const updateObject = { [category]:  updatedList}
