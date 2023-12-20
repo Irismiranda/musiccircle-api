@@ -5,7 +5,7 @@ const axios = require('axios')
 const socketIo = require('socket.io')
 const querystring = require('querystring')
 const { v4: uuidv4 } = require('uuid')
-const {Firestore} = require('@google-cloud/firestore')
+const { Firestore, Filter } = require('@google-cloud/firestore')
 const admin = require('firebase-admin')
 const functions = require('firebase-functions')
 
