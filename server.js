@@ -385,17 +385,12 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     console.log("search term is", search_term)
     
     try{
-      const querySnapshot = await collectionRef
-      .where(
-        or(
-          where('display_name', '<=', search_term + '\uf8ff'),
-          where('display_name', '>=', search_term),
-          where('id', '<=', search_term),
-          where('id', '>=', search_term + '\uf8ff')
-        )
-      )
+      const results = await collectionRef
+      .where('display_name', '>=', search_term)
+      .where('display_name', '<=', search_term + '\uf8ff')
+      .limit(20)
+      .get()
       
-      const results =  await getDocs(querySnapshot)
       const users = []
 
       console.log("results are:", results)
@@ -406,8 +401,22 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
         console.log("user data is", userData)
       })
+
+      if (users.length < 20) {
+        const idResults = await firestore.collection('users')
+            .where('id', '==', normalizedSearchTerm)
+            .limit(20 - users.length)  // Limit the results to fill the remaining space
+            .get();
+
+        idResults.forEach((doc) => {
+            const userData = doc.data();
+            if (!users.some((u) => u.id === userData.id)) {
+                users.push(userData);
+            }
+        })
+    }
       
-      res.send(users)
+    res.send(users)
     
     } catch(err){
       console.log(err)
