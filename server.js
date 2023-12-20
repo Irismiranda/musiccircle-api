@@ -403,7 +403,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
         const userDoc = doc.data()
         users.push(userDoc.userData)
 
-        console.log("user data is", userData)
+        console.log("user data is", userDoc.userData)
       })
 
     res.send(users)
