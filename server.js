@@ -386,8 +386,8 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     
     try{
       const results = await collectionRef
-      .where('display_name', '>=', search_term)
-      .where('display_name', '<=', search_term + '\uf8ff')
+      .where('user_handle', '>=', search_term)
+      .where('user_handle', '<=', search_term + '\uf8ff')
       .limit(20)
       .get()
       
@@ -402,21 +402,6 @@ app.get('/api/user/:category/:id', async (req, res)  => {
         console.log("user data is", userData)
       })
 
-      if (users.length < 20) {
-        const idResults = await firestore.collection('users')
-            .where('id', '>=', search_term)
-            .where('id', '<=', search_term + '\uf8ff')
-            .limit(20 - users.length)
-            .get();
-
-        idResults.forEach((doc) => {
-            const userData = doc.data()
-            if (!users.some((u) => u.id === userData.id)) {
-                users.push(userData)
-            }
-        })
-    }
-      
     res.send(users)
     
     } catch(err){
