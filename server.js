@@ -387,14 +387,13 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     try{
       const querySnapshot = await collectionRef
       .where(
-        Filter.or(
-          Filter.where('display_name', '<=', search_term),
-          Filter.where('display_name', '>=', search_term),
-          Filter.where('id', '<=', search_term),
-          Filter.where('id', '>=', search_term)
+        or(
+          where('display_name', '<=', search_term + '\uf8ff'),
+          where('display_name', '>=', search_term),
+          where('id', '<=', search_term),
+          where('id', '>=', search_term + '\uf8ff')
         )
       )
-      .get()
       
       const results =  await getDocs(querySnapshot)
       const users = []
