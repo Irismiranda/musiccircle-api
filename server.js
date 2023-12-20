@@ -388,8 +388,10 @@ app.get('/api/user/:category/:id', async (req, res)  => {
       const querySnapshot = await collectionRef
       .where(
         Filter.or(
-          Filter.where('display_name', 'array-contains', search_term),
-          Filter.where('id', 'array-contains', search_term)
+          Filter.where('display_name', '<=', search_term),
+          Filter.where('display_name', '>=', search_term),
+          Filter.where('id', '<=', search_term),
+          Filter.where('id', '>=', search_term)
         )
       )
       .get()
