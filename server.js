@@ -392,14 +392,12 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     
     try{
       const results = await collectionRef
-      .where('user_handle', '>=', search_term)
-      .where('user_handle', '<=', search_term + '\uf8ff')
+      .where('userData.user_handle', '>=', search_term)
+      .where('userData.user_handle', '<=', search_term + '\uf8ff')
       .limit(20)
       .get()
       
       const users = []
-
-      console.log("results are:", results)
 
       results.forEach((doc) => {
         const userData = doc.data()
