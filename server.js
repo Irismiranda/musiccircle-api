@@ -412,19 +412,21 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     }
   })
 
-  app.post('/api/:userId/post/:contentId', async (req, res) => {
-    const { userId, contentId } = req.params
+  app.post('/api/:user_id/post/:content_id', async (req, res) => {
+    const { user_id, content_id } = req.params
     const { message, type } = req.body
 
-    const collectionRef = admin.firestore().collection(`user/${userId}/posts`)
+    const collectionRef = admin.firestore().collection(`user/${user_id}/posts`)
     try{
-      await collectionRef.post({
+      await collectionRef.add({
         message: message,
         type: type,
-        [`${type}_id`]: contentId,
+        [`${type}_id`]: content_id,
       })
+      res.status(200).send("Post created successfully")
     } catch(err){
       console.log(err)
+      res.status(500).send("Internal Server Error")
     }
 
   })
