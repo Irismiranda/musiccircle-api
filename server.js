@@ -8,6 +8,7 @@ const { v4: uuidv4 } = require('uuid')
 const { Firestore, Filter } = require('@google-cloud/firestore')
 const admin = require('firebase-admin')
 const functions = require('firebase-functions')
+const { request } = require('http')
 
 const port = process.env.PORT
 const app = express()
@@ -388,8 +389,6 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     const { search_term } = req.params
     const collectionRef = admin.firestore().collection('user')
     
-    console.log("search term is", search_term)
-    
     try{
       const results = await collectionRef
       .where('userData.user_handle', '>=', search_term)
@@ -411,6 +410,22 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     } catch(err){
       console.log(err)
     }
+  })
+
+  app.post('/api/:userId/post/:contentId', async (req, res) => {
+    const { userId, contentId } = req.params
+    const { message, type } = req.body
+
+    const collectionRef = admin.firestore().collection(`user/${userId}/posts`)
+    try{
+      await collectionRef.post({
+        message: message,
+        type: type,
+      })
+    } catch(err){
+      console.log(err)
+    }
+
   })
 
   //Chats
