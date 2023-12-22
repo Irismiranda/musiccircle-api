@@ -421,6 +421,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
       await collectionRef.post({
         message: message,
         type: type,
+        [`${type}_id`]: contentId,
       })
     } catch(err){
       console.log(err)
