@@ -435,7 +435,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
       await collectionRef.doc(post_id).set({
         comment: comment,
         type: type, 
-        [`${type}_id`]: content_id,
+        id: content_id,
         post_id: post_id,
       })
       res.status(200).send("Post created")
