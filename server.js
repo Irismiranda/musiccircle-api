@@ -402,7 +402,8 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
   app.get('/api/:user_id/posts', async (req, res) => {
     const { user_id } = req.params
-    const postsCollectionRef = admin.firestore().collection(`user/${user_id}/posts`)
+    const userDocRef = admin.firestore().doc(`user/${user_id}`)
+    const postsCollectionRef = userDocRef.collection('posts')
     
     try{
       const postsCollection = await postsCollectionRef.get()
@@ -411,6 +412,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
         const posts = postsCollection.docs.map(doc => {
           return doc.data()
         })
+
         console.log("posts are", posts)
         res.send(posts)
       } else {
