@@ -444,7 +444,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
         [`${type}_id`]: content_id,
         post_id: post_id,
       })
-      res.status(200).send("Post created successfully")
+      res.status(200).send("Post created")
     } catch(err){
       console.log(err)
       res.status(500).send("Internal Server Error")
