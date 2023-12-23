@@ -407,6 +407,8 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     
     try{
       const postsCollection = await postsCollectionRef.get()
+
+      console.log(postsCollection)
       
       if(postsCollection.exists){
         const posts = postsCollection.docs.map(doc => {
