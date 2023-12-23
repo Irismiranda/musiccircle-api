@@ -412,22 +412,55 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     }
   })
 
+  app.get('/api/:user_id/posts', async (req, res) => {
+    const { user_id } = req.params
+    const userRef = admin.firestore().doc(`user/${user_id}`)
+
+    try{
+      const doc = await userRef.get()
+      if(doc.exists){
+        const userDoc = doc.data()
+        const posts = userDoc.posts
+        
+        res.send(posts)
+      } else {
+        res.send({})
+      }
+    } catch(err){
+      console.log(err)
+    }
+  })
+
   app.post('/api/:user_id/post/:content_id', async (req, res) => {
     const { user_id, content_id } = req.params
-    const { message, type } = req.body
+    const { comment, type } = req.body
+    const post_id = uuidv4()
 
     const collectionRef = admin.firestore().collection(`user/${user_id}/posts`)
     try{
-      await collectionRef.add({
-        message: message,
+      await collectionRef.doc(post_id).set({
+        comment: comment,
         type: type,
         [`${type}_id`]: content_id,
+        post_id: post_id,
       })
       res.status(200).send("Post created successfully")
     } catch(err){
       console.log(err)
       res.status(500).send("Internal Server Error")
     }
+
+  })
+
+  app.post('/api/:user_id/:post_id/delete_post', async (req, res) => {
+
+  })
+
+  app.post('/api/:user_id/:post_id/add_comment', async (req, res) => {
+
+  })
+
+  app.post('/api/:user_id/:post_id/delete_comment', async (req, res) => {
 
   })
 
