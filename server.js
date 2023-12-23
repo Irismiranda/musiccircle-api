@@ -408,7 +408,10 @@ app.get('/api/user/:category/:id', async (req, res)  => {
       const postsCollection = await postsCollectionRef.get()
       
       if(postsCollection.exists){
-        const posts = postsCollection.docs.map(doc => doc.data())
+        const posts = postsCollection.docs.map(doc => {
+          return doc.data()
+        })
+        console.log("posts are", posts)
         res.send(posts)
       } else {
         res.send({})
