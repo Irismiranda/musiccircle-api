@@ -402,8 +402,10 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
   app.get('/api/:user_id/posts', async (req, res) => {
     const { user_id } = req.params
+    console.log("user id is", user_id)
+
     const userRef = admin.firestore().doc(`user/${user_id}`)
-    
+    console.log("user ref is", userRef)
     
     try{
       const doc = await userRef.get()
