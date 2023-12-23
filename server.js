@@ -402,23 +402,13 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
   app.get('/api/:user_id/posts', async (req, res) => {
     const { user_id } = req.params
-    console.log("user id is", user_id)
-
-    const userRef = admin.firestore().doc(`user/${user_id}`)
-    console.log("user ref is", userRef)
+    const postsCollectionRef = admin.firestore().collection(`user/${user_id}/posts`)
     
     try{
-      const doc = await userRef.get()
+      const postsCollection = await postsCollectionRef.get()
       
-      if(doc.exists){
-        const userDoc = doc.data()
-
-        console.log("user doc is:", userDoc)
-
-        const posts = userDoc.posts
-
-        console.log("posts are:", posts)
-        
+      if(postsCollection.exists){
+        const posts = postsCollection.docs.map(doc => doc.data())
         res.send(posts)
       } else {
         res.send({})
