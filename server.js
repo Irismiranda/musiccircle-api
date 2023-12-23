@@ -410,7 +410,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
       console.log(postsCollection)
       
-      if(!postsCollection.empty){
+      if(!postsCollection.empty()){
         const posts = postsCollection.docs.map(doc => {
           console.log("posts are", posts)
           return doc.data()
