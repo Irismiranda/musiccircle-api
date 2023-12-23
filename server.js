@@ -80,7 +80,6 @@ const io = socketIo(server, {
       }
     )
     const {access_token, refresh_token, expires_in} = response.data
-    console.log("log - refresh token is:", refresh_token)
     res.redirect(`https://musiccircle.onrender.com?access_token=${access_token}&refresh_token=${refresh_token}&expires_in=${expires_in}`)
   })
 
@@ -102,10 +101,10 @@ const io = socketIo(server, {
       console.log("token refreshed")
       res.json(response.data)
       
-    } catch (error) {
-      console.log("failed to refreshed token", error)
-      console.error('Error refreshing access token:', error)
-      res.status(500).json({ error: 'Internal Server Error' })
+    } catch (err) {
+      console.log("failed to refreshed token", err)
+      console.err('err refreshing access token:', err)
+      res.status(500).json({ err: 'Internal Server err' })
     }
   })
 
@@ -152,7 +151,6 @@ const io = socketIo(server, {
       const userDoc = await userDocRef.get()
 
       if (userDoc.exists) {
-          console.log("log -", userDoc.data().userData)
           res.json(userDoc.data().userData)
         } else {  
           await userDocRef.set({userData})
@@ -172,7 +170,6 @@ const io = socketIo(server, {
       const userDoc = await userDocRef.get()
 
       if (userDoc.exists) {
-          console.log("log -", userDoc.data().userData)
           res.json(userDoc.data().userData)
         } else {  
           await userDocRef.set({userData})
@@ -194,9 +191,9 @@ const io = socketIo(server, {
       const isFollowing = Array.isArray(loggedUserData.userData.following) && loggedUserData.userData.following.some(user => user === currentUserId)
       res.send(isFollowing)
 
-    } catch (error) {
-        console.error(error)
-        res.status(500).send('Internal Server Error')
+    } catch (err) {
+        console.err(err)
+        res.status(500).send('Internal Server err')
     }
   })
 
@@ -248,13 +245,13 @@ const io = socketIo(server, {
         const udaptedIsFollowing = updatedLoggedUser.data().userData.following.includes(currentUserId)
 
         res.send({isFollowing: udaptedIsFollowing, updatedLoggedUser: updatedLoggedUser.data().userData, updatedCurrentUser: updatedCurrentUser.data().userData})
-      } catch(error){
-        console.log(error)
+      } catch(err){
+        console.log(err)
       }
 
-    } catch (error) {
-      console.error(error)
-      res.status(500).send('Internal Server Error')
+    } catch (err) {
+      console.err(err)
+      res.status(500).send('Internal Server err')
     }
   })
 
@@ -262,7 +259,6 @@ const io = socketIo(server, {
     const { id, items } = req.body
     const { category } = req.params
     const userDocRef = admin.firestore().doc(`user/${id}`)
-    console.log("received items for", category, "are:", items)
 
     try {
         const user = await userDocRef.get()
@@ -271,18 +267,14 @@ const io = socketIo(server, {
 
         if (prevList) {
             const prevHiddenItems = prevList.items.filter(item => item.isVisible === false)
-            console.log("prev hidden items are:", prevHiddenItems)
 
             const prevHiddenItemIds = prevHiddenItems.map(item => item.id)
-            console.log("prev hidden item ids are:", prevHiddenItemIds)
 
             const updatedItems = items.map(item => {
-              console.log("item is:", item, "is hidden:", prevHiddenItemIds.includes(item.id))
               return prevHiddenItemIds.includes(item.id) ? { ...item, isVisible: false } : item
           })
 
             const updatedList = {...prevList, items: updatedItems}
-            console.log("updated list for", category, "is:", updatedList)
             
             // Check if 'show_[category]' exists
             if (prevList[`show_${category}`] === undefined) {
@@ -304,8 +296,8 @@ const io = socketIo(server, {
             res.send(newList)
         }
     } catch(err) {
-        console.error(err)
-        res.status(500).json({ error: 'Internal Server Error' })
+        console.err(err)
+        res.status(500).json({ err: 'Internal Server err' })
     }
 })
 
@@ -319,11 +311,11 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     if (list) {
         res.json(list)
     } else {
-        res.status(404).json({ error: 'User not found.' })
+        res.status(404).json({ err: 'User not found.' })
     }
 } catch(err) {
-    console.error(err)
-    res.status(500).json({ error: 'Internal Server Error' })
+    console.err(err)
+    res.status(500).json({ err: 'Internal Server err' })
 }
 })
 
@@ -350,19 +342,17 @@ app.get('/api/user/:category/:id', async (req, res)  => {
             await userDocRef.update(updateObject)
             res.json(updateObject)
         } else {
-            res.status(404).json({ error: 'User not found.' })
+            res.status(404).json({ err: 'User not found.' })
         }
     } catch(err) {
-        console.error(err);
-        res.status(500).json({ error: 'Internal Server Error' })
+        console.err(err);
+        res.status(500).json({ err: 'Internal Server err' })
     }
 })
 
   app.post('/api/user/:category/hide_category', async (req, res) => {
     const { userId } = req.body
     const { category } = req.params
-
-    console.log("userId is:", userId, "category is:", category)
 
     const userDocRef = admin.firestore().doc(`user/${userId}`)
 
@@ -371,17 +361,16 @@ app.get('/api/user/:category/:id', async (req, res)  => {
       if (doc.exists) {
           const userData = doc.data()
           const topList = userData[category]
-          console.log("top list is:", topList)
           const updatedList = {...topList, [`show_${category}`]: !topList[`show_${category}`]}
           const updatedObject = { [category]: updatedList}
           await userDocRef.update(updatedObject)
           res.send(updatedList)
       } else {
-          res.status(404).json({ error: 'User not found.' })
+          res.status(404).json({ err: 'User not found.' })
       }
   } catch(err) {
-      console.error(err);
-      res.status(500).json({ error: 'Internal Server Error' })
+      console.err(err);
+      res.status(500).json({ err: 'Internal Server err' })
   }
   })
 
@@ -402,7 +391,6 @@ app.get('/api/user/:category/:id', async (req, res)  => {
         const userDoc = doc.data()
         users.push(userDoc.userData)
 
-        console.log("user data is", userDoc.userData)
       })
 
     res.send(users)
@@ -454,7 +442,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
       res.status(200).send("Post created")
     } catch(err){
       console.log(err)
-      res.status(500).send("Internal Server Error")
+      res.status(500).send("Internal Server err")
     }
 
   })
@@ -520,8 +508,8 @@ app.get('/api/user/:category/:id', async (req, res)  => {
         socket.join(currentChatId);
         console.log('User connected to chat', currentChatId)
         socket.emit('gotChat', currentChatId)
-      } catch (error) {
-        console.error('Error creating/updating chat:', error)
+      } catch (err) {
+        console.err('err creating/updating chat:', err)
       }
     })
 
@@ -546,8 +534,8 @@ app.get('/api/user/:category/:id', async (req, res)  => {
           await batch.commit()
           console.log(`Deleted ${messagesToDelete} old message(s) to maintain limit.`)
         }
-      } catch (error) {
-        console.error('Error adding message to Firestore:', error)
+      } catch (err) {
+        console.err('err adding message to Firestore:', err)
       }
     })
 
@@ -558,8 +546,8 @@ app.get('/api/user/:category/:id', async (req, res)  => {
               display: false
           })
           console.log('Message display status updated successfully.')
-        } catch (error) {
-            console.error('Error updating message display status:', error)
+        } catch (err) {
+            console.err('err updating message display status:', err)
         }
     })
 
