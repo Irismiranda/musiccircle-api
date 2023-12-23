@@ -420,7 +420,12 @@ app.get('/api/user/:category/:id', async (req, res)  => {
       const doc = await userRef.get()
       if(doc.exists){
         const userDoc = doc.data()
+
+        console.log("user doc is:", userDoc)
+
         const posts = userDoc.posts
+
+        console.log("posts are:", posts)
         
         res.send(posts)
       } else {
@@ -440,7 +445,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     try{
       await collectionRef.doc(post_id).set({
         comment: comment,
-        type: type,
+        type: type, 
         [`${type}_id`]: content_id,
         post_id: post_id,
       })
