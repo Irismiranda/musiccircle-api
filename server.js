@@ -144,10 +144,10 @@ const io = socketIo(server, {
 
   app.post('/api/account', async (req, res) => {
     const { userData } = req.body
-    const { id, type } = userData
+    const { id } = userData
 
     try {
-      const userDocRef = admin.firestore().doc(`${type}/${id}`)
+      const userDocRef = admin.firestore().doc(`user/${id}`)
       const userDoc = await userDocRef.get()
 
       if (userDoc.exists) {
@@ -161,23 +161,16 @@ const io = socketIo(server, {
       }
   })
 
-  app.post('/api/account', async (req, res) => {
-    const { userData } = req.body
-    const { id, type } = userData
-
+  app.get('/api/:user_id', async (req, res) => {
+    const { user_id } = req.params
+    const userDocRef = admin.firestore().doc(`user/${user_id}`)
+    
     try {
-      const userDocRef = admin.firestore().doc(`${type}/${id}`)
       const userDoc = await userDocRef.get()
-
-      if (userDoc.exists) {
-          res.json(userDoc.data().userData)
-        } else {  
-          await userDocRef.set({userData})
-          res.json(userData)
-        }
-      } catch(err){
-        console.log(err)
-      }
+      res.json(userDoc.data().userData)
+    } catch(err){
+      console.log(err)
+    }
   })
 
   app.get('/api/:loggedUserId/is_following/:currentUserId', async (req, res) => {
@@ -437,6 +430,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
         type: type, 
         id: content_id,
         post_id: post_id,
+        user_id: user_id,
       })
       res.status(200).send("Post created")
     } catch(err){
