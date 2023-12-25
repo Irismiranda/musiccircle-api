@@ -161,7 +161,7 @@ const io = socketIo(server, {
       }
   })
 
-  app.get('/api/:user_id', async (req, res) => {
+  app.get('/api/account/:user_id', async (req, res) => {
     const { user_id } = req.params
     const userDocRef = admin.firestore().doc(`user/${user_id}`)
     
