@@ -444,23 +444,17 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     const postsCollectionRef = userDocRef.collection('posts')
 
     try{
-      const postsCollection = await postsCollectionRef.get()
+      const postDocRef = postsCollectionRef.doc(post_id)
 
-      const updatedCollection = postsCollection.docs.map((doc) => {
-        const data = doc.data()
-        console.log("post data is", data)
-        if (doc.id === post_id) {
-          return {
-            ...data,
-            hide_post: !data.hide_post || false,
-          }
-        } return data
+      await postDocRef.update({
+        hide_post: !postDoc.data().hide_post || false,
       })
 
-      console.log("updated collection is", updatedCollection)
+      const updatedPostsSnapshot = await postsCollectionRef.get()
+      const updatedPosts = updatedPostsSnapshot.docs.map((doc) => doc.data())
 
-      await postsCollectionRef.set(updatedCollection)      
-      res.send(updatedCollection)
+      console.log("updated collection is", updatedPosts)
+      res.send(updatedPosts)
       
     } catch(err){
       console.log(err)
