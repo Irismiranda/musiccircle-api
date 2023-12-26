@@ -445,6 +445,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
     try{
       const postDocRef = postsCollectionRef.doc(post_id)
+      const postDoc = await postDocRef.get()
 
       await postDocRef.update({
         hide_post: !postDoc.data().hide_post || false,
