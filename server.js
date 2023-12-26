@@ -440,7 +440,51 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
   })
 
+  app.post('/api/:user_id/:post_id/toggle_hide_post', async (req, res) => {
+    const { user_id, post_id } = req.params
+    const userDocRef = admin.firestore().doc(`user/${user_id}`)
+    
+    const postsCollectionRef = userDocRef.collection('posts')
+
+    try{
+      const postsCollection = await postsCollectionRef.get()
+
+      const updatedCollection = postsCollection.docs.map((doc) => {
+        const data = doc.data()
+        if (doc.id === post_id) {
+          return {
+            ...data,
+            hide_post: !data.hide_post || false,
+          }
+        } else return data
+      })
+
+      await postsCollectionRef.set(updatedCollection)      
+      res.send(updatedCollection)
+      
+    } catch(err){
+      console.log(err)
+    }
+
+  })
+
   app.post('/api/:user_id/:post_id/delete_post', async (req, res) => {
+    const { user_id, post_id } = req.params
+    const userDocRef = admin.firestore().doc(`user/${user_id}`)
+    
+    const postsCollectionRef = userDocRef.collection('posts')
+
+    try{
+      const postDocRef = postsCollectionRef.doc(post_id)
+      await postDocRef.delete()
+     
+      const updatedPostsSnapshot = await postsCollectionRef.get()
+      const updatedPosts = updatedPostsSnapshot.docs.map((doc) => doc.data())
+      res.send(updatedPosts)
+      
+    } catch(err){
+      console.log(err)
+    }
 
   })
 
