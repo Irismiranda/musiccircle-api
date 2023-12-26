@@ -448,13 +448,16 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
       const updatedCollection = postsCollection.docs.map((doc) => {
         const data = doc.data()
+        console.log("post data is", data)
         if (doc.id === post_id) {
           return {
             ...data,
             hide_post: !data.hide_post || false,
           }
-        } else return data
+        } return data
       })
+
+      console.log("updated collection is", updatedCollection)
 
       await postsCollectionRef.set(updatedCollection)      
       res.send(updatedCollection)
