@@ -142,12 +142,11 @@ const io = socketIo(server, {
 
   // User data
 
-  app.post('/api/account', async (req, res) => {
-    const { userData } = req.body
-    const { id } = userData
+  app.post('/api/account/:user_id', async (req, res) => {
+    const { user_id } = req.params
 
     try {
-      const userDocRef = admin.firestore().doc(`user/${id}`)
+      const userDocRef = admin.firestore().doc(`user/${user_id}`)
       const userDoc = await userDocRef.get()
 
       if (userDoc.exists) {
