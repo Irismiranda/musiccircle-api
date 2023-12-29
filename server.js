@@ -487,21 +487,9 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     const { poster_id } = newCommentData
 
     if(poster_id){
-      const userCollectionRef = admin.firestore().collection('user')
       try{
-        const querySnapshot = await userCollectionRef
-        .where('posts', '=', post_id)
-        .get()
-
-        if (!querySnapshot.empty) {
-          const docSnapshot = querySnapshot.docs[0]
-          const commentsCollectionRef = docSnapshot.ref.collection('comments') 
-          
-          await commentsCollectionRef.add(newCommentData)
-
-        } else {
-            console.log('No matching document found')
-        }
+        const commentsCollectionRef = admin.firestore().collection(`user/${user_id}/${post_id}/comments`)
+        await commentsCollectionRef.add(newCommentData)
         
       } catch(err){
         console.log(err)
