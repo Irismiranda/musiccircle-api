@@ -382,7 +382,6 @@ app.get('/api/user/:category/:id', async (req, res)  => {
       results.forEach((doc) => {
         const userDoc = doc.data()
         users.push(userDoc.userData)
-
       })
 
     res.send(users)
@@ -416,13 +415,13 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
   app.post('/api/:user_id/post/:content_id', async (req, res) => {
     const { user_id, content_id } = req.params
-    const { comment, type } = req.body
+    const { description, type } = req.body
     const post_id = uuidv4()
 
     const collectionRef = admin.firestore().collection(`user/${user_id}/posts`)
     try{
       await collectionRef.doc(post_id).set({
-        comment: comment,
+        description: description,
         type: type, 
         id: content_id,
         post_id: post_id,
@@ -482,11 +481,43 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
   })
 
-  app.post('/api/:user_id/:post_id/add_comment', async (req, res) => {
+  app.post('/api/:post_id/add_comment', async (req, res) => {
+    const { post_id } = req.params
+    const newCommentData = req.body
+    const { poster_id } = newCommentData
+
+    if(poster_id){
+      const userCollectionRef = admin.firestore().collection('user')
+      try{
+        const querySnapshot = await userCollectionRef
+        .where('posts', '=', post_id)
+        .get()
+
+        if (!querySnapshot.empty) {
+          const docSnapshot = querySnapshot.docs[0]
+          const commentsCollectionRef = docSnapshot.ref.collection('comments') 
+          
+          await commentsCollectionRef.add(newCommentData)
+
+        } else {
+            console.log('No matching document found')
+        }
+        
+      } catch(err){
+        console.log(err)
+      }
+    } else {
+      try{
+        const commentsCollectionRef = admin.firestore().collection(`artists/tracks/${post_id}/comments`)
+        await commentsCollectionRef.add(newCommentData)
+      } catch(err){
+        console.log(err)
+      }
+    }
 
   })
 
-  app.post('/api/:user_id/:post_id/delete_comment', async (req, res) => {
+  app.post('/api/:post_id/delete_comment', async (req, res) => {
 
   })
 
