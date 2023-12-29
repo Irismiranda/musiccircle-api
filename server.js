@@ -561,36 +561,36 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     }
   })
 
-    io.on('connection', (socket) => {
-      socket.on('listenToComments', async ({ post_id, poster_id, artist_id }) => {
-        try {
-          socket.join(post_id)
+  io.on('connection', (socket) => {
+    socket.on('listenToComments', async ({ post_id, poster_id, artist_id }) => {
+      try {
+        socket.join(post_id)
 
-          const postsCollectionRef = poster_id ? 
-          admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments`) :
-          admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/comments`)
+        const postsCollectionRef = poster_id ? 
+        admin.firestore().collection(`user/${poster_id}/posts/${post_id}/comments`) :
+        admin.firestore().collection(`artists/${artist_id}/${post_id}/posts/comments`)
 
-          let isFirstSnapshot = true
-          postsCollectionRef.onSnapshot((snapshot) => {
-            const comments = snapshot.docChanges()
-              .filter(change => change.type === 'added' || change.type === 'modified')
-              .map(change => change.doc.data())
-            if (isFirstSnapshot) {
-              io.to(post_id).emit('loadAllComments', comments)
-              isFirstSnapshot = false;
-            } else {
-              io.to(post_id).emit('loadNewComment', comments)
-            }
-          })
-
-        socket.on('disconnectFromComments', ({ post_id }) => {
-            socket.leave(post_id)
+        let isFirstSnapshot = true
+        postsCollectionRef.onSnapshot((snapshot) => {
+          const comments = snapshot.docChanges()
+            .filter(change => change.type === 'added' || change.type === 'modified')
+            .map(change => change.doc.data())
+          if (isFirstSnapshot) {
+            io.to(post_id).emit('loadAllComments', comments)
+            isFirstSnapshot = false
+          } else {
+            io.to(post_id).emit('loadNewComment', comments)
+          }
         })
-        } catch(err){
-          console.log(err)
-        }
+
+      socket.on('disconnectFromComments', ({ post_id }) => {
+          socket.leave(post_id)
       })
+      } catch(err){
+        console.log(err)
+      }
     })
+  })
 
   //Chats
 
