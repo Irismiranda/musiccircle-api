@@ -488,7 +488,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
     if(poster_id){
       try{
-        const commentsCollectionRef = admin.firestore().collection(`user/${poster_id}/${post_id}/comments`)
+        const commentsCollectionRef = admin.firestore().collection(`user/${poster_id}/posts/${post_id}/comments`)
         await commentsCollectionRef.add(newCommentData)
         
       } catch(err){
@@ -496,7 +496,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
       }
     } else {
       try{
-        const commentsCollectionRef = admin.firestore().collection(`artists/tracks/${post_id}/comments`)
+        const commentsCollectionRef = admin.firestore().collection(`artists/tracks/posts/${post_id}/comments`)
         await commentsCollectionRef.add(newCommentData)
       } catch(err){
         console.log(err)
