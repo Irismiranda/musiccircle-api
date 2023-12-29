@@ -142,7 +142,7 @@ const io = socketIo(server, {
 
   // User data
 
-  app.post('/api/account/:user_id', async (req, res) => {
+  app.post('/api/user/:user_id', async (req, res) => {
     const { user_id } = req.params
 
     try {
@@ -160,7 +160,7 @@ const io = socketIo(server, {
       }
   })
 
-  app.get('/api/account/:user_id', async (req, res) => {
+  app.get('/api/user/:user_id', async (req, res) => {
     const { user_id } = req.params
     const userDocRef = admin.firestore().doc(`user/${user_id}`)
     
@@ -566,12 +566,12 @@ app.get('/api/user/:category/:id', async (req, res)  => {
       try {
         socket.join(post_id)
 
-        const postsCollectionRef = poster_id ? 
+        const commentsCollectionRef = poster_id ? 
         admin.firestore().collection(`user/${poster_id}/posts/${post_id}/comments`) :
         admin.firestore().collection(`artists/${artist_id}/${post_id}/posts/comments`)
 
         let isFirstSnapshot = true
-        postsCollectionRef.onSnapshot((snapshot) => {
+        commentsCollectionRef.onSnapshot((snapshot) => {
           const comments = snapshot.docChanges()
             .filter(change => change.type === 'added' || change.type === 'modified')
             .map(change => change.doc.data())
