@@ -484,32 +484,113 @@ app.get('/api/user/:category/:id', async (req, res)  => {
   app.post('/api/:post_id/add_comment', async (req, res) => {
     const { post_id } = req.params
     const newCommentData = req.body
-    const { poster_id } = newCommentData
+    const { poster_id, artist_id } = newCommentData
+
+    newCommentData.comment_id = uuidv4()
+
+    try{
+      const commentsCollectionRef = poster_id ? 
+      admin.firestore().collection(`user/${poster_id}/posts/${post_id}/comments`) :
+      admin.firestore().collection(`artists/${artist_id}/${post_id}/posts/comments`)
+
+      await commentsCollectionRef.add(newCommentData)
+      res.status(201).send("Comment added successfully")
+    } catch(err){
+      console.log(err)
+    }
+
+  })
+
+  app.post('/api/:post_id/reply_to/:comment_id', async (req, res) => {
+    const { post_id, comment_id } = req.params
+    const newCommentData = req.body
+    const { poster_id, artist_id } = newCommentData
 
     newCommentData.comment_id = uuidv4()
 
     if(poster_id){
       try{
-        const commentsCollectionRef = admin.firestore().collection(`user/${poster_id}/posts/${post_id}/comments`)
-        await commentsCollectionRef.add(newCommentData)
-        
-      } catch(err){
-        console.log(err)
-      }
-    } else {
-      try{
-        const commentsCollectionRef = admin.firestore().collection(`artists/tracks/posts/${post_id}/comments`)
-        await commentsCollectionRef.add(newCommentData)
+        const commentDocRef = 
+        poster_id ? 
+        admin.firestore().collection(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
+        admin.firestore().collection(`artists/${artist_id}/${post_id}/posts/comments/${comment_id}`)
+
+        const commentSnapshot = await commentDocRef.get()
+        const existingData = commentSnapshot.data() || {}
+        const prevReplies = existingData.replies || []
+
+        await commentDocRef.update({
+          replies: [...prevReplies, newCommentData]
+        })
+
+        res.status(201).send("Comment added successfully")
       } catch(err){
         console.log(err)
       }
     }
-
   })
 
-  app.post('/api/:post_id/delete_comment', async (req, res) => {
+  app.post('/api/:poster_id/:artist_id/:post_id/delete_comment/:comment_id', async (req, res) => {
+    const { poster_id, artist_id, post_id, comment_id } = req.params
+    const commentDocRef = poster_id ? 
+    admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
+    admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/comments/${comment_id}`)
 
+    try{
+      commentDocRef.delete()
+    } catch(err){
+      console.log(err)
+    }
   })
+
+  app.post('/api/:poster_id/:artist_id/:post_id/delete_reply/:comment_id/:reply_id', async (req, res) => {
+    const { poster_id, artist_id, post_id, comment_id, reply_id } = req.params
+    const commentDocRef = poster_id ? 
+    admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
+    admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/comments/${comment_id}`)
+    try{
+      const commentSnapshot = await commentDocRef.get()
+      const commentDoc = commentSnapshot.data()
+  
+      const updatedReplies = commentDoc.replies.filter(reply => reply.id !== reply_id)
+      commentDocRef.update({replies: updatedReplies})   
+
+      res.status(200).send("Reply deleted successfully")
+    } catch(err){
+      console.log(err)
+    }
+  })
+
+    io.on('connection', (socket) => {
+      socket.on('listenToComments', async ({ post_id, poster_id, artist_id }) => {
+        try {
+          socket.join(post_id)
+
+          const postsCollectionRef = poster_id ? 
+          admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments`) :
+          admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/comments`)
+
+          let isFirstSnapshot = true
+          postsCollectionRef.onSnapshot((snapshot) => {
+            const comments = snapshot.docChanges()
+              .filter(change => change.type === 'added' || change.type === 'modified')
+              .map(change => change.doc.data())
+            if (isFirstSnapshot) {
+              io.to(post_id).emit('loadAllComments', comments)
+              isFirstSnapshot = false;
+            } else {
+              io.to(post_id).emit('loadNewComment', comments)
+            }
+          })
+
+        socket.on('disconnectFromComments', ({ post_id }) => {
+            socket.leave(post_id)
+        })
+        } catch(err){
+          console.log(err)
+        }
+      })
+    })
 
   //Chats
 
