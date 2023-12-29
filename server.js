@@ -486,6 +486,8 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     const newCommentData = req.body
     const { poster_id } = newCommentData
 
+    newCommentData.comment_id = uuidv4()
+
     if(poster_id){
       try{
         const commentsCollectionRef = admin.firestore().collection(`user/${poster_id}/posts/${post_id}/comments`)
