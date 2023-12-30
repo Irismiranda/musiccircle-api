@@ -564,6 +564,52 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     }
   })
 
+  app.post('/api/:poster_id/:artist_id/:post_id/toggle_like_comment/:comment_id', async (req, res) => {
+    const { poster_id, artist_id, post_id, comment_id } = req.params
+    const { logged_user_id } = req.body
+
+    const commentDocRef = poster_id ? 
+    admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
+    admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/comments/${comment_id}`)
+
+    try{
+      const commentSnapshot = await commentDocRef.get()
+      const commentDoc = commentSnapshot.data()
+      
+      const updatedLikes = commentDoc?.likes?.includes(logged_user_id) ?
+      commentDoc.likes.filter((like) => like !== logged_user_id) :
+      [...(commentDoc.likes || []) , logged_user_id]
+
+      commentDocRef.update({likes: updatedLikes})
+      res.status(200).send("like toggled successfully")
+    } catch(err){
+      console.log(err)
+    }
+  })
+
+  app.post('/api/:poster_id/:artist_id/:post_id/toggle_like_reply/:comment_id/:reply_id', async (req, res) => {
+    const { poster_id, artist_id, post_id, comment_id, reply_id } = req.params
+    const { logged_user_id } = req.body
+
+    const commentDocRef = poster_id ? 
+    admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
+    admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/comments/${comment_id}`)
+    
+    try{
+      const commentSnapshot = await commentDocRef.get()
+      const commentDoc = commentSnapshot.data()
+      
+      const updatedLikes = commentDoc?.replies[reply_id].likes?.includes(logged_user_id) ?
+      commentDoc.likes.filter((like) => like !== logged_user_id) :
+      [...(commentDoc.likes || []) , logged_user_id]
+
+      commentDocRef.update({[`replies.${reply_id}.likes`]: updatedLikes})
+      res.status(200).send("like toggled successfully")
+    } catch(err){
+      console.log(err)
+    }
+  })
+
   io.on('connection', (socket) => {
     socket.on('listenToComments', async ({ post_id, poster_id, artist_id }) => {
       try {
