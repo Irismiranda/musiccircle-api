@@ -486,6 +486,8 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     const newCommentData = req.body
     const { poster_id, artist_id } = newCommentData
 
+    console.log("artist id is:", artist_id)
+
     newCommentData.comment_id = uuidv4()
 
     try{
@@ -566,6 +568,8 @@ app.get('/api/user/:category/:id', async (req, res)  => {
       try {
         socket.join(post_id)
 
+        console.log("joined room", post_id)
+
         const commentsCollectionRef = poster_id ? 
         admin.firestore().collection(`user/${poster_id}/posts/${post_id}/comments`) :
         admin.firestore().collection(`artists/${artist_id}/${post_id}/posts/comments`)
@@ -576,9 +580,11 @@ app.get('/api/user/:category/:id', async (req, res)  => {
             .filter(change => change.type === 'added' || change.type === 'modified')
             .map(change => change.doc.data())
           if (isFirstSnapshot) {
+            console.log("loading comments", comments)
             io.to(post_id).emit('loadAllComments', comments)
             isFirstSnapshot = false
           } else {
+            console.log("loading new comment", comments)
             io.to(post_id).emit('loadNewComment', comments)
           }
         })
