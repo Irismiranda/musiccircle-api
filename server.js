@@ -578,7 +578,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
       
       const updatedLikes = commentDoc?.likes?.includes(logged_user_id) ?
       commentDoc.likes.filter((like) => like !== logged_user_id) :
-      [...(commentDoc.likes || []) , logged_user_id]
+      [...(commentDoc.likes ? commentDoc.likes : []) , logged_user_id]
 
       commentDocRef.update({likes: updatedLikes})
       res.status(200).send("like toggled successfully")
