@@ -540,6 +540,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
     try{
       commentDocRef.delete()
+      res.status(200).send("comment deleted successfully")
     } catch(err){
       console.log(err)
     }
