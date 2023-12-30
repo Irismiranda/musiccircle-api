@@ -144,6 +144,7 @@ const io = socketIo(server, {
 
   app.post('/api/user/:user_id', async (req, res) => {
     const { user_id } = req.params
+    const { userData } = req.body
 
     try {
       const userDocRef = admin.firestore().doc(`user/${user_id}`)
