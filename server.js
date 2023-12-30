@@ -574,6 +574,10 @@ app.get('/api/user/:category/:id', async (req, res)  => {
         admin.firestore().collection(`user/${poster_id}/posts/${post_id}/comments`) :
         admin.firestore().collection(`artists/${artist_id}/${post_id}/posts/comments`)
 
+        console.log( poster_id ? 
+          `user/${poster_id}/posts/${post_id}/comments` : 
+          `artists/${artist_id}/${post_id}/posts/comments`)
+
         let isFirstSnapshot = true
         commentsCollectionRef.onSnapshot((snapshot) => {
           const comments = snapshot.docChanges()
