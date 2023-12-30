@@ -103,7 +103,7 @@ const io = socketIo(server, {
       
     } catch (err) {
       console.log("failed to refreshed token", err)
-      console.err('err refreshing access token:', err)
+      console.log('err refreshing access token:', err)
       res.status(500).json({ err: 'Internal Server err' })
     }
   })
@@ -184,7 +184,7 @@ const io = socketIo(server, {
       res.send(isFollowing)
 
     } catch (err) {
-        console.err(err)
+        console.log(err)
         res.status(500).send('Internal Server err')
     }
   })
@@ -242,7 +242,7 @@ const io = socketIo(server, {
       }
 
     } catch (err) {
-      console.err(err)
+      console.log(err)
       res.status(500).send('Internal Server err')
     }
   })
@@ -288,7 +288,7 @@ const io = socketIo(server, {
             res.send(newList)
         }
     } catch(err) {
-        console.err(err)
+        console.log(err)
         res.status(500).json({ err: 'Internal Server err' })
     }
 })
@@ -306,7 +306,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
         res.status(404).json({ err: 'User not found.' })
     }
 } catch(err) {
-    console.err(err)
+    console.log(err)
     res.status(500).json({ err: 'Internal Server err' })
 }
 })
@@ -337,7 +337,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
             res.status(404).json({ err: 'User not found.' })
         }
     } catch(err) {
-        console.err(err);
+        console.log(err);
         res.status(500).json({ err: 'Internal Server err' })
     }
 })
@@ -361,7 +361,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
           res.status(404).json({ err: 'User not found.' })
       }
   } catch(err) {
-      console.err(err);
+      console.log(err);
       res.status(500).json({ err: 'Internal Server err' })
   }
   })
@@ -459,6 +459,15 @@ app.get('/api/user/:category/:id', async (req, res)  => {
       console.log(err)
     }
 
+  })
+
+  app.post('/api/:poster_id/:artist_id/toggle_post_like/:post_id', async (req, res) => {
+    const { poster_id, artist_id, post_id } = req.params
+    const { logged_user_id } = req.body
+
+    const postsCollectionRef = poster_id ? 
+    admin.firestore().collection(`user/${poster_id}/posts/${post_id}`) :
+    admin.firestore().collection(`artists/${artist_id}/${post_id}/posts/`)
   })
 
   app.post('/api/:user_id/:post_id/delete_post', async (req, res) => {
@@ -699,7 +708,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
         console.log('User connected to chat', currentChatId)
         socket.emit('gotChat', currentChatId)
       } catch (err) {
-        console.err('err creating/updating chat:', err)
+        console.log('err creating/updating chat:', err)
       }
     })
 
@@ -725,7 +734,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
           console.log(`Deleted ${messagesToDelete} old message(s) to maintain limit.`)
         }
       } catch (err) {
-        console.err('err adding message to Firestore:', err)
+        console.log('err adding message to Firestore:', err)
       }
     })
 
@@ -737,7 +746,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
           })
           console.log('Message display status updated successfully.')
         } catch (err) {
-            console.err('err updating message display status:', err)
+            console.log('err updating message display status:', err)
         }
     })
 
