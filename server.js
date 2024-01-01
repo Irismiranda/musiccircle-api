@@ -638,7 +638,8 @@ app.get('/api/user/:category/:id', async (req, res)  => {
         let isFirstSnapshot = true
         commentsCollectionRef.onSnapshot((snapshot) => {
           const comments = snapshot.docChanges()
-            .filter(change => change.type === 'added')
+            .filter(change => isFirstSnapshot ? 
+              change.type === 'added' || change.type === 'modified' : change.type === 'added')
             .map(change => change.doc.data())
           if (isFirstSnapshot) {
             console.log("loading comments", comments)
