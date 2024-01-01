@@ -462,7 +462,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
   })
 
-  app.post('/api/:poster_id/:artist_id/toggle_post_like/:post_id', async (req, res) => {
+  app.post('/api/:poster_id/:artist_id/toggle_like_post/:post_id', async (req, res) => {
     const { poster_id, artist_id, post_id } = req.params
     const { logged_user_id } = req.body
 
@@ -638,7 +638,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
         let isFirstSnapshot = true
         commentsCollectionRef.onSnapshot((snapshot) => {
           const comments = snapshot.docChanges()
-            .filter(change => change.type === 'added' || change.type === 'modified')
+            .filter(change => change.type === 'added')
             .map(change => change.doc.data())
           if (isFirstSnapshot) {
             console.log("loading comments", comments)
