@@ -653,17 +653,16 @@ app.get('/api/user/:category/:id', async (req, res)  => {
         let isFirstSnapshot = true
         commentsCollectionRef.onSnapshot((snapshot) => {
           const comments = snapshot.docChanges()
-            .filter(change => isFirstSnapshot ? 
-              change.type === 'added' || change.type === 'modified' : change.type === 'added')
+            .filter(change => change.type === 'added' || change.type === 'modified')
             .map(change => change.doc.data())
           if (isFirstSnapshot) {
-            console.log("loading comments", comments)
+            console.log('loading comments', comments)
             io.to(post_id).emit('loadAllComments', comments)
             isFirstSnapshot = false
-          } else {
-            console.log("loading new comment", comments)
+          } else{
+            console.log('loading new comment', comments)
             io.to(post_id).emit('loadNewComment', comments)
-          }
+          } 
         })
 
       socket.on('disconnectFromComments', ({ post_id }) => {
@@ -708,10 +707,11 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     
         let isFirstSnapshot = true;
         const messagesRef = admin.firestore().collection(`${type}/${id}/chats/${currentChatId}/messages`)
+
         messagesRef.onSnapshot((snapshot) => {
           const messages = snapshot.docChanges()
             .filter(change => change.type === 'added' || change.type === 'modified')
-            .map(change => change.doc.data());
+            .map(change => change.doc.data())
     
           if (isFirstSnapshot) {
             io.to(currentChatId).emit('loadAllMessages', messages)
