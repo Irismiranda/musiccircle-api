@@ -502,8 +502,8 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
     try{
       const commentsCollectionRef = poster_id ? 
-      admin.firestore().collection(`user/${poster_id}/posts/${post_id}`) :
-      admin.firestore().collection(`artists/${artist_id}/${post_id}/posts`)
+      admin.firestore().collection(`user/${poster_id}/posts/${post_id}/comments`) :
+      admin.firestore().collection(`artists/${artist_id}/${post_id}/posts/comments`)
 
       await commentsCollectionRef.doc(comment_id).set(newCommentData)
       res.status(201).send("Comment added successfully")
