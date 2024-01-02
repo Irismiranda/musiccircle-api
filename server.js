@@ -515,6 +515,9 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
   app.post('/api/:post_id/reply_to/:comment_id', async (req, res) => {
     const { post_id, comment_id } = req.params
+
+    console.log("request params are,", req.params)
+
     const newCommentData = req.body
     const { poster_id, artist_id } = newCommentData
 
@@ -544,6 +547,9 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
   app.post('/api/:poster_id/:artist_id/:post_id/delete_comment/:comment_id', async (req, res) => {
     const { poster_id, artist_id, post_id, comment_id } = req.params
+
+    console.log("request params are,", req.params)
+
     const commentDocRef = poster_id ? 
     admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
     admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/comments/${comment_id}`)
@@ -558,6 +564,9 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
   app.post('/api/:poster_id/:artist_id/:post_id/delete_reply/:comment_id/:reply_id', async (req, res) => {
     const { poster_id, artist_id, post_id, comment_id, reply_id } = req.params
+
+    console.log("request params are,", req.params)
+
     const commentDocRef = poster_id ? 
     admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
     admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/comments/${comment_id}`)
@@ -576,6 +585,9 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
   app.post('/api/:poster_id/:artist_id/:post_id/toggle_like_comment/:comment_id', async (req, res) => {
     const { poster_id, artist_id, post_id, comment_id } = req.params
+
+    console.log("request params are,", req.params)
+
     const { logged_user_id } = req.body
 
     const commentDocRef = poster_id ? 
@@ -599,6 +611,9 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 
   app.post('/api/:poster_id/:artist_id/:post_id/toggle_like_reply/:comment_id/:reply_id', async (req, res) => {
     const { poster_id, artist_id, post_id, comment_id, reply_id } = req.params
+
+    console.log("request params are,", req.params)
+
     const { logged_user_id } = req.body
 
     const commentDocRef = poster_id ? 
