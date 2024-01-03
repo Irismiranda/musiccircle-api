@@ -492,7 +492,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
       postDoc.update({ likes: updatedLikes })
       res.status(200).send('Like toggled successfully')
     } catch {
-      console.error(error);
+      console.log(error);
       return res.status(500).send('Internal Server Error')
     }
   })
