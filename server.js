@@ -167,7 +167,8 @@ const io = socketIo(server, {
     
     try {
       const userDoc = await userDocRef.get()
-      res.json(userDoc.data().userData)
+      const user = userDoc.data()
+      res.json(user.userData)
     } catch(err){
       console.log(err)
     }
@@ -635,7 +636,22 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     }
   })
 
+  //Socket
+
+  const firestore = new Firestore()
+  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
+
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: 'https://<your-database-name>.firebaseio.com',
+  })
+
+
   io.on('connection', (socket) => {
+    console.log('Client connected')
+
+    //Comments
+    
     socket.on('listenToComments', async ({ post_id, poster_id, artist_id }) => {
       try {
         socket.join(post_id)
@@ -672,21 +688,8 @@ app.get('/api/user/:category/:id', async (req, res)  => {
         console.log(err)
       }
     })
-  })
 
-  //Chats
-
-  const firestore = new Firestore()
-  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
-
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: 'https://<your-database-name>.firebaseio.com',
-  })
-
-
-  io.on('connection', (socket) => {
-    console.log('Client connected')
+    //Chat
     
     socket.on('connectToChat', async ({ id, type }) => {
       try {
