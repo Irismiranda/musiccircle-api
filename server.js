@@ -472,9 +472,18 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     const { poster_id, artist_id, post_id } = req.params
     const { logged_user_id } = req.body
 
-    const postsCollectionRef = poster_id ? 
-    admin.firestore().collection(`user/${poster_id}/posts/${post_id}`) :
-    admin.firestore().collection(`artists/${artist_id}/${post_id}/posts/`)
+    const postRef = poster_id ? 
+    admin.firestore().doc(`user/${poster_id}/posts/${post_id}`) :
+    admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/`)
+
+    const postDoc = await postRef.get()
+    const post = postDoc.data()
+    
+    const updatedLikes = post.likes?.includes(logged_user_id) ? 
+    post.likes?.filter(like => like !== logged_user_id) :
+    [...(post.likes || []), loggedUser.id]
+
+    postDoc.update({ likes: updatedLikes })
   })
 
   app.post('/api/:user_id/:post_id/delete_post', async (req, res) => {
