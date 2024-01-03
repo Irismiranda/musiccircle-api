@@ -146,6 +146,8 @@ const io = socketIo(server, {
     const { user_id } = req.params
     const { userData } = req.body
 
+    console.log("user id is", user_id)
+
     console.log("user data is", userData)
 
     try {
