@@ -603,6 +603,8 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     try{
       const commentSnapshot = await commentDocRef.get()
       const commentDoc = commentSnapshot.data()
+
+      console.log("comment doc is", commentDoc)
       
       const updatedLikes = commentDoc?.likes?.includes(logged_user_id) ?
       commentDoc.likes.filter((like) => like !== logged_user_id) :
