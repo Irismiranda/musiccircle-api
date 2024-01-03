@@ -254,7 +254,7 @@ const io = socketIo(server, {
     }
   })
 
-  app.post('/api/user/:category', async (req, res) => {
+  app.post('/api/user/data/:category', async (req, res) => {
     const { id, items } = req.body
     const { category } = req.params
     const userDocRef = admin.firestore().doc(`user/${id}`)
@@ -300,7 +300,7 @@ const io = socketIo(server, {
     }
 })
 
-app.get('/api/user/:category/:id', async (req, res)  => {
+app.get('/api/user/data/:category/:id', async (req, res)  => {
   const { id, category } = req.params
   const userDocRef = admin.firestore().doc(`user/${id}`)
   try {
@@ -318,7 +318,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
 }
 })
 
-  app.post('/api/user/:category/hide_item', async (req, res)  => {
+  app.post('/api/user/data/:category/hide_item', async (req, res)  => {
     const { userId, itemId } = req.body
     const { category } = req.params
     const userDocRef = admin.firestore().doc(`user/${userId}`)
@@ -349,7 +349,7 @@ app.get('/api/user/:category/:id', async (req, res)  => {
     }
 })
 
-  app.post('/api/user/:category/hide_category', async (req, res) => {
+  app.post('/api/user/data/:category/hide_category', async (req, res) => {
     const { userId } = req.body
     const { category } = req.params
 
