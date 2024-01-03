@@ -481,7 +481,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     
     const updatedLikes = post.likes?.includes(logged_user_id) ? 
     post.likes?.filter(like => like !== logged_user_id) :
-    [...(post.likes || []), loggedUser.id]
+    [...(post.likes || []), logged_user_id]
 
     postDoc.update({ likes: updatedLikes })
   })
