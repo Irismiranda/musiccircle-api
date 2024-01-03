@@ -484,6 +484,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     [...(post.likes || []), logged_user_id]
 
     postDoc.update({ likes: updatedLikes })
+    res.s
   })
 
   app.post('/api/:user_id/:post_id/delete_post', async (req, res) => {
