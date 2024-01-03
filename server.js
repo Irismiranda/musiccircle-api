@@ -472,19 +472,29 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     const { poster_id, artist_id, post_id } = req.params
     const { logged_user_id } = req.body
 
-    const postRef = poster_id ? 
-    admin.firestore().doc(`user/${poster_id}/posts/${post_id}`) :
-    admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/`)
+    try{
+      const postRef = poster_id ? 
+      admin.firestore().doc(`user/${poster_id}/posts/${post_id}`) :
+      admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/`)
 
-    const postDoc = await postRef.get()
-    const post = postDoc.data()
-    
-    const updatedLikes = post.likes?.includes(logged_user_id) ? 
-    post.likes?.filter(like => like !== logged_user_id) :
-    [...(post.likes || []), logged_user_id]
+      console.log("path is", poster_id ? 
+      admin.firestore().doc(`user/${poster_id}/posts/${post_id}`) :
+      admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/`)
+)
 
-    postDoc.update({ likes: updatedLikes })
-    res.s
+      const postDoc = await postRef.get()
+      const post = postDoc.data()
+      
+      const updatedLikes = post.likes?.includes(logged_user_id) ? 
+      post.likes?.filter(like => like !== logged_user_id) :
+      [...(post.likes || []), logged_user_id]
+
+      postDoc.update({ likes: updatedLikes })
+      res.status(200).send('Like toggled successfully')
+    } catch {
+      console.error(error);
+      return res.status(500).send('Internal Server Error')
+    }
   })
 
   app.post('/api/:user_id/:post_id/delete_post', async (req, res) => {
