@@ -146,14 +146,17 @@ const io = socketIo(server, {
     const { user_id } = req.params
     const { userData } = req.body
 
+    console.log("user data is", userData)
+
     try {
       const userDocRef = admin.firestore().doc(`user/${user_id}`)
       const userDoc = await userDocRef.get()
 
       if (userDoc.exists) {
-          res.json(userDoc.data().userData)
+          const user = userDoc.data()
+          res.json(user.userData)
         } else {  
-          await userDocRef.set({userData})
+          await userDocRef.set({userData: userData}, { merge: true })
           res.json(userData)
         }
       } catch(err){
