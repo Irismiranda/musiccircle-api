@@ -478,8 +478,8 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
       admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/`)
 
       console.log("path is", poster_id ? 
-      admin.firestore().doc(`user/${poster_id}/posts/${post_id}`) :
-      admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/`)
+      `user/${poster_id}/posts/${post_id}` :
+      `artists/${artist_id}/${post_id}/posts/`
 )
 
       const postDoc = await postRef.get()
