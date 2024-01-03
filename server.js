@@ -682,7 +682,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
             isFirstSnapshot = false
           } else{
             console.log('loading new comment', comments)
-            io.to(post_id).emit('loadNewComment', comments)
+            comments && io.to(post_id).emit('loadNewComment', comments)
           } 
         })
 
