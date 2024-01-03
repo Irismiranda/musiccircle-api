@@ -527,7 +527,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     const newCommentData = req.body
     const { poster_id, artist_id } = newCommentData
 
-    newCommentData.comment_id = uuidv4()
+    newCommentData.reply_id = uuidv4()
 
     if(poster_id){
       try{
