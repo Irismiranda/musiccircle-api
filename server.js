@@ -474,12 +474,12 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
 
     console.log((poster_id && poster_id !== "undefined") ? 
     `user/${poster_id}/posts/${post_id}` :
-    `artists/${artist_id}/${post_id}/posts/`)
+    `artists/${artist_id}/posts/${post_id}`)
 
     try{
       const postRef =  (poster_id && poster_id !== "undefined") ? 
       admin.firestore().doc(`user/${poster_id}/posts/${post_id}`) :
-      admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/`)
+      admin.firestore().doc(`artists/${artist_id}/posts/${post_id}`)
 
       const postDoc = await postRef.get()
       const post = postDoc.data()
@@ -528,7 +528,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     try{
       const commentsCollectionRef = (poster_id && poster_id !== "undefined") ? 
       admin.firestore().collection(`user/${poster_id}/posts/${post_id}/comments`) :
-      admin.firestore().collection(`artists/${artist_id}/${post_id}/posts/comments`)
+      admin.firestore().collection(`artists/${artist_id}/posts/${post_id}/comments`)
 
       await commentsCollectionRef.doc(newCommentData.comment_id).set(newCommentData)
       res.status(201).send("Comment added successfully")
@@ -553,7 +553,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
         const commentDocRef = 
         (poster_id && poster_id !== "undefined") ? 
         admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
-        admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/comments/${comment_id}`)
+        admin.firestore().doc(`artists/${artist_id}/posts/${post_id}/comments/${comment_id}`)
 
         const commentSnapshot = await commentDocRef.get()
         const existingData = commentSnapshot.data() || {}
@@ -577,7 +577,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
 
     const commentDocRef = (poster_id && poster_id !== "undefined") ?
     admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
-    admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/comments/${comment_id}`)
+    admin.firestore().doc(`artists/${artist_id}/posts/${post_id}/comments/${comment_id}`)
 
     try{
       await commentDocRef.delete()
@@ -594,7 +594,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
 
     const commentDocRef = (poster_id && poster_id !== "undefined") ? 
     admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
-    admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/comments/${comment_id}`)
+    admin.firestore().doc(`artists/${artist_id}/posts/${post_id}/comments/${comment_id}`)
     try{
       const commentSnapshot = await commentDocRef.get()
       const commentDoc = commentSnapshot.data()
@@ -615,7 +615,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
 
     const commentDocRef = (poster_id && poster_id !== "undefined") ? 
     admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
-    admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/comments/${comment_id}`)
+    admin.firestore().doc(`artists/${artist_id}/posts/${post_id}/comments/${comment_id}`)
 
     try{
       const commentSnapshot = await commentDocRef.get()
@@ -643,7 +643,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
 
     const commentDocRef = (poster_id && poster_id !== "undefined") ? 
     admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
-    admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/comments/${comment_id}`)
+    admin.firestore().doc(`artists/${artist_id}/posts/${post_id}/comments/${comment_id}`)
     
     try{
       const commentSnapshot = await commentDocRef.get()
@@ -684,7 +684,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
 
         const commentsCollectionRef = (poster_id && poster_id !== "undefined") ? 
         admin.firestore().collection(`user/${poster_id}/posts/${post_id}/comments`) :
-        admin.firestore().collection(`artists/${artist_id}/${post_id}/posts/comments`)
+        admin.firestore().collection(`artists/${artist_id}/posts/${post_id}/comments`)
 
         let isFirstSnapshot = true
         commentsCollectionRef.onSnapshot((snapshot) => {
