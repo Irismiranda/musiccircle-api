@@ -576,6 +576,10 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
 
     console.log("request params are,", req.params)
 
+    console.log("path is",  poster_id ? 
+    `user/${poster_id}/posts/${post_id}/comments/${comment_id}` : 
+    `artists/${artist_id}/${post_id}/posts/comments/${comment_id}`)
+
     const commentDocRef = poster_id ? 
     admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
     admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/comments/${comment_id}`)
