@@ -553,8 +553,8 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
       try{
         const commentDocRef = 
         poster_id ? 
-        admin.firestore().collection(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
-        admin.firestore().collection(`artists/${artist_id}/${post_id}/posts/comments/${comment_id}`)
+        admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
+        admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/comments/${comment_id}`)
 
         const commentSnapshot = await commentDocRef.get()
         const existingData = commentSnapshot.data() || {}
