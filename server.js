@@ -581,7 +581,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     admin.firestore().doc(`artists/${artist_id}/${post_id}/posts/comments/${comment_id}`)
 
     try{
-      commentDocRef.delete()
+      await commentDocRef.delete()
       res.status(200).send("comment deleted successfully")
     } catch(err){
       console.log(err)
