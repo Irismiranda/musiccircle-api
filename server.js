@@ -763,7 +763,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
       console.log('new message data is:', newMessage)
 
       const { messageId, id, chatId } = newMessage
-      const docRef = admin.firestore().collection(`artists/${id}/chats/${chatId}/messages`).doc(messageId)
+      const messagesRef = admin.firestore().collection(`artists/${id}/chats/${chatId}/messages`).doc(messageId)
 
       try {
         await docRef.set(newMessage)
