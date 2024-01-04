@@ -483,6 +483,8 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
 
       const postDoc = await postRef.get()
       const post = postDoc.data()
+
+      console.log("post is", post)
       
       const updatedLikes = post.likes?.includes(logged_user_id) ? 
       post.likes?.filter(like => like !== logged_user_id) :
