@@ -488,7 +488,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
       
       const updatedLikes = post?.likes?.includes(logged_user_id) ? 
       post.likes?.filter(like => like !== logged_user_id) :
-      [...(post.likes || []), logged_user_id]
+      [...(post?.likes || []), logged_user_id]
 
       postRef.update({ likes: updatedLikes })
       res.status(200).send('Like toggled successfully')
