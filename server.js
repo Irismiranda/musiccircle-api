@@ -472,6 +472,10 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     const { poster_id, artist_id, post_id } = req.params
     const { logged_user_id } = req.body
 
+    console.log((poster_id && poster_id !== "undefined") ? 
+    `user/${poster_id}/posts/${post_id}` :
+    `artists/${artist_id}/${post_id}/posts/`)
+
     try{
       const postRef =  (poster_id && poster_id !== "undefined") ? 
       admin.firestore().doc(`user/${poster_id}/posts/${post_id}`) :
