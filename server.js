@@ -720,7 +720,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     
     socket.on('connectToChat', async ({ id, type }) => {
       try {
-        const chatCollectionRef = admin.firestore().collection(`${type}/${id}/chats`)
+        const chatCollectionRef = admin.firestore().collection(`${type}s/${id}/chats`)
         const existingChatQuery = await chatCollectionRef.get();
         let currentChatId = '';
     
@@ -736,7 +736,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
         }
     
         let isFirstSnapshot = true;
-        const messagesRef = admin.firestore().collection(`${type}/${id}/chats/${currentChatId}/messages`)
+        const messagesRef = admin.firestore().collection(`${type}s/${id}/chats/${currentChatId}/messages`)
 
         messagesRef.onSnapshot((snapshot) => {
           const messages = snapshot.docChanges()
