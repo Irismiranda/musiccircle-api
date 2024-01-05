@@ -427,7 +427,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     try{
       const postDoc = await postDocRef.get()
 
-      if(!postDoc.exists){
+      if(postDoc.exists){
         res.send(postDoc.data())
       } else {
         const postData = {
