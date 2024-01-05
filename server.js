@@ -425,14 +425,10 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     const postDocRef = admin.firestore().doc(`artists/${artist_id}/posts/${track_id}`)
     
     try{
-      const postsCollection = await postDocRef.get()
+      const postDoc = await postDocRef.get()
 
-      if(!postsCollection.empty){
-        const posts = postsCollection.docs.map(post => {
-          return post.data()
-        })
-
-        res.send(posts)
+      if(!postDoc.exists){
+        res.send(postDoc.data())
       } else {
         const postData = {
           artist_id: artist_id,
