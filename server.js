@@ -422,6 +422,8 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
 
   app.get('/api/:artist_id/:track_id/post', async (req, res) => {
     const { artist_id, track_id } = req.params
+
+    console.log("path is", `artists/${artist_id}/posts/${track_id}`)
     const postDocRef = admin.firestore().doc(`artists/${artist_id}/posts/${track_id}`)
     
     try{
