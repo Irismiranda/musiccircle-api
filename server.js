@@ -461,9 +461,10 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
       })
 
       const updatedUserRef = admin.firestore().doc(`user/${user_id}`)
-      const updatedUserDoc = updatedUserRef.get()
+      const updatedUserDoc = await updatedUserRef.get()
+      const user = updatedUserDoc.data()
 
-      res.send(updatedUserDoc.data())
+      res.send(user)
     } catch(err){
       console.log(err)
       res.status(500).send("Internal Server err")
