@@ -420,6 +420,33 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     }
   })
 
+  app.get('/api/:artist_id/:track_id/post', async (req, res) => {
+    const { artist_id, track_id } = req.params
+    const postDocRef = admin.firestore().doc(`artists/${artist_id}/posts/${track_id}`)
+    
+    try{
+      const postsCollection = await postDocRef.get()
+
+      if(!postsCollection.empty){
+        const posts = postsCollection.docs.map(post => {
+          return post.data()
+        })
+
+        res.send(posts)
+      } else {
+        const postData = {
+          artist_id: artist_id,
+          track_id: track_id,
+          likes: []
+        }
+        postDocRef.set(postData)
+        res.send(postData)
+      }
+    } catch(err){
+      console.log(err)
+    }
+  })
+
   app.post('/api/:user_id/post/:content_id', async (req, res) => {
     const { user_id, content_id } = req.params
     const { description, type } = req.body
