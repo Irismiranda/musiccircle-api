@@ -798,7 +798,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
       const messagesRef = admin.firestore().collection(`artists/${id}/chats/${chatId}/messages`).doc(messageId)
 
       try {
-        await docRef.set(newMessage)
+        await messagesRef.set(newMessage)
         console.log('Message added to Firestore:', newMessage)
 
         const messagesSnapshot = await messagesRef.get()
