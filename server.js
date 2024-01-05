@@ -459,7 +459,11 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
         post_id: post_id,
         user_id: user_id,
       })
-      res.status(200).send("Post created")
+
+      const updatedUserRef = admin.firestore().doc(`user/${user_id}`)
+      const updatedUserDoc = updatedUserRef.get()
+
+      res.send(updatedUserDoc.data())
     } catch(err){
       console.log(err)
       res.status(500).send("Internal Server err")
