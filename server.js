@@ -464,7 +464,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
       const updatedUserDoc = await updatedUserRef.get()
       const user = updatedUserDoc.data()
 
-      res.send(user)
+      res.send(user.userData)
     } catch(err){
       console.log(err)
       res.status(500).send("Internal Server err")
