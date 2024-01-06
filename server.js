@@ -629,7 +629,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
   app.post('/api/:poster_id/:artist_id/:post_id/delete_reply/:comment_id/:reply_id', async (req, res) => {
     const { poster_id, artist_id, post_id, comment_id, reply_id } = req.params
 
-    console.log("request params are,", req.params)
+    console.log("request params are,", req.params, "path is", poster_id && poster_id !== "undefined" ? `user/${poster_id}/posts/${post_id}/comments/${comment_id}` : `artists/${artist_id}/posts/${post_id}/comments/${comment_id}`)
 
     const commentDocRef = (poster_id && poster_id !== "undefined") ? 
     admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
@@ -649,7 +649,6 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
 
   app.post('/api/:poster_id/:artist_id/:post_id/toggle_like_comment/:comment_id', async (req, res) => {
     const { poster_id, artist_id, post_id, comment_id } = req.params
-
     const { logged_user_id } = req.body
 
     const commentDocRef = (poster_id && poster_id !== "undefined") ? 
@@ -675,10 +674,9 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
 
   app.post('/api/:poster_id/:artist_id/:post_id/toggle_like_reply/:comment_id/:reply_id', async (req, res) => {
     const { poster_id, artist_id, post_id, comment_id, reply_id } = req.params
-
-    console.log("request params are,", req.params)
-
     const { logged_user_id } = req.body
+
+    console.log("request params are,", req.params, "path is", poster_id && poster_id !== "undefined" ? `user/${poster_id}/posts/${post_id}/comments/${comment_id}` : `artists/${artist_id}/posts/${post_id}/comments/${comment_id}`)
 
     const commentDocRef = (poster_id && poster_id !== "undefined") ? 
     admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
