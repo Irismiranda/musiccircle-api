@@ -635,11 +635,9 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
     admin.firestore().doc(`artists/${artist_id}/posts/${post_id}/comments/${comment_id}`)
     try{
-      const commentSnapshot = await commentDocRef.get()
-      const commentDoc = commentSnapshot.data()
-  
-      const updatedReplies = commentDoc.replies.filter(reply => reply.id !== reply_id)
-      commentDocRef.update({replies: updatedReplies})   
+      commentDocRef.update({
+        replies: admin.firestore.FieldValue.arrayRemove({ reply_id })
+      })
 
       res.status(200).send("Reply deleted successfully")
     } catch(err){
