@@ -344,7 +344,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
             res.status(404).json({ err: 'User not found.' })
         }
     } catch(err) {
-        console.log(err);
+        console.log(err)
         res.status(500).json({ err: 'Internal Server err' })
     }
 })
@@ -368,7 +368,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
           res.status(404).json({ err: 'User not found.' })
       }
   } catch(err) {
-      console.log(err);
+      console.log(err)
       res.status(500).json({ err: 'Internal Server err' })
   }
   })
@@ -530,7 +530,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
 
       res.status(200).send('Like toggled successfully')
     } catch(err){
-      console.log(err);
+      console.log(err)
       return res.status(500).send('Internal Server Error')
     }
   })
@@ -679,23 +679,26 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     console.log("request params are,", req.params, "path is", poster_id && poster_id !== "undefined" ? `user/${poster_id}/posts/${post_id}/comments/${comment_id}` : `artists/${artist_id}/posts/${post_id}/comments/${comment_id}`)
 
     const commentDocRef = (poster_id && poster_id !== "undefined") ? 
-    admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
-    admin.firestore().doc(`artists/${artist_id}/posts/${post_id}/comments/${comment_id}`)
+        admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
+        admin.firestore().doc(`artists/${artist_id}/posts/${post_id}/comments/${comment_id}`)
     
-    try{
-      const commentSnapshot = await commentDocRef.get()
-      const commentDoc = commentSnapshot.data()
-      
-      const updatedLikes = commentDoc?.replies[reply_id].likes?.includes(logged_user_id) ?
-      commentDoc.likes.filter((like) => like !== logged_user_id) :
-      [...(commentDoc.likes || []), logged_user_id]
+    try {
+        const commentSnapshot = await commentDocRef.get()
+        const commentDoc = commentSnapshot.data()
 
-      commentDocRef.update({[`replies.${reply_id}.likes`]: updatedLikes})
-      res.status(200).send("like toggled successfully")
-    } catch(err){
-      console.log(err)
+        const currentReply = commentDoc.replies.find(reply => reply.reply_id === reply_id)
+        
+        const updatedLikes = currentReply.likes?.includes(logged_user_id) ?
+            currentReply.likes.filter((like) => like !== logged_user_id) :
+            [...(currentReply.likes || []), logged_user_id]
+
+        await commentDocRef.update({ [`replies.${reply_id}.likes`]: updatedLikes })
+        res.status(200).send("Like toggled successfully")
+    } catch(err) {
+        console.log(err)
+        res.status(500).send("Internal Server Error")
     }
-  })
+})
 
   //Socket
 
@@ -751,8 +754,8 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     socket.on('connectToChat', async ({ id, type }) => {
       try {
         const chatCollectionRef = admin.firestore().collection(`${type}s/${id}/chats`)
-        const existingChatQuery = await chatCollectionRef.get();
-        let currentChatId = '';
+        const existingChatQuery = await chatCollectionRef.get()
+        let currentChatId = ''
     
         if (existingChatQuery.size > 0) {
           currentChatId = existingChatQuery.docs[0].id
@@ -761,11 +764,11 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
           const newChatId = `${id}_${uuidv4()}`
           console.log('New chat id is:', newChatId)
           await chatCollectionRef.doc(newChatId).set({})
-          currentChatId = newChatId;
+          currentChatId = newChatId
           console.log('New chat created', currentChatId)
         }
     
-        let isFirstSnapshot = true;
+        let isFirstSnapshot = true
         const messagesRef = admin.firestore().collection(`${type}s/${id}/chats/${currentChatId}/messages`)
 
         messagesRef.onSnapshot((snapshot) => {
@@ -775,13 +778,13 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     
           if (isFirstSnapshot) {
             io.to(currentChatId).emit('loadAllMessages', messages)
-            isFirstSnapshot = false;
+            isFirstSnapshot = false
           } else {
             io.to(currentChatId).emit('loadNewMessage', messages)
           }
         })
     
-        socket.join(currentChatId);
+        socket.join(currentChatId)
         console.log('User connected to chat', currentChatId)
         socket.emit('gotChat', currentChatId)
       } catch (err) {
