@@ -635,9 +635,11 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
     admin.firestore().doc(`artists/${artist_id}/posts/${post_id}/comments/${comment_id}`)
     try{
-      commentDocRef.update({
-        replies: admin.firestore.FieldValue.arrayRemove({ reply_id })
-      })
+      const commentSnapshot = await commentDocRef.get()
+      const commentDoc = commentSnapshot.data()
+  
+      const updatedReplies = commentDoc.replies.filter(reply => reply.reply_id !== reply_id)
+      commentDocRef.update({replies: updatedReplies})   
 
       res.status(200).send("Reply deleted successfully")
     } catch(err){
@@ -686,7 +688,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
       
       const updatedLikes = commentDoc?.replies[reply_id].likes?.includes(logged_user_id) ?
       commentDoc.likes.filter((like) => like !== logged_user_id) :
-      [...(commentDoc.likes || []) , logged_user_id]
+      [...(commentDoc.likes || []), logged_user_id]
 
       commentDocRef.update({[`replies.${reply_id}.likes`]: updatedLikes})
       res.status(200).send("like toggled successfully")
