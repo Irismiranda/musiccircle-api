@@ -693,8 +693,11 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
             [...(currentReply.likes || []), logged_user_id]
 
         const updatedReply = {...currentReply, likes: updatedLikes}
+        const updatedReplies = commentDoc.replies.map(reply => {
+          return reply.reply_id === reply_id ? updatedReply : reply
+        })
 
-        await commentDocRef.update({ [`replies.${reply_id}`]: updatedReply })
+        await commentDocRef.update({ replies: updatedReplies })
         res.status(200).send("Like toggled successfully")
     } catch(err) {
         console.log(err)
