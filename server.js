@@ -599,7 +599,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
         const prevReplies = existingData.replies || []
 
         await commentDocRef.update({
-          replies: [...prevReplies || [], newCommentData]
+          replies: [...(prevReplies ?? []), newCommentData]
         })
 
         res.status(201).send("Comment added successfully")
