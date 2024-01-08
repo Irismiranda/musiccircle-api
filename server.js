@@ -579,34 +579,24 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
 
   app.post('/api/:post_id/reply_to/:comment_id', async (req, res) => {
     const { post_id, comment_id } = req.params
-
-    console.log("request params are,", req.params)
-
     const newCommentData = req.body
+
     const { poster_id, artist_id } = newCommentData
 
     newCommentData.reply_id = uuidv4()
+    try{
+      const repliesCollectionRef = 
+      (poster_id && poster_id !== "undefined") ? 
+      admin.firestore().collection(`user/${poster_id}/posts/${post_id}/comments/${comment_id}/replies`) :
+      admin.firestore().collection(`artists/${artist_id}/posts/${post_id}/comments/${comment_id}/replies`)
 
-    if(poster_id){
-      try{
-        const commentDocRef = 
-        (poster_id && poster_id !== "undefined") ? 
-        admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
-        admin.firestore().doc(`artists/${artist_id}/posts/${post_id}/comments/${comment_id}`)
+      await repliesCollectionRef.doc(reply_id).set(newCommentData)
 
-        const commentSnapshot = await commentDocRef.get()
-        const existingData = commentSnapshot.data() || {}
-        const prevReplies = existingData.replies || []
-
-        await commentDocRef.update({
-          replies: [...(prevReplies ?? []), newCommentData]
-        })
-
-        res.status(201).send("Comment added successfully")
-      } catch(err){
-        console.log(err)
-      }
+      res.status(201).send("Comment added successfully")
+    } catch(err){
+      console.log(err)
     }
+    
   })
 
   app.post('/api/:poster_id/:artist_id/:post_id/delete_comment/:comment_id', async (req, res) => {
@@ -629,18 +619,14 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
   app.post('/api/:poster_id/:artist_id/:post_id/delete_reply/:comment_id/:reply_id', async (req, res) => {
     const { poster_id, artist_id, post_id, comment_id, reply_id } = req.params
 
-    console.log("request params are,", req.params, "path is", poster_id && poster_id !== "undefined" ? `user/${poster_id}/posts/${post_id}/comments/${comment_id}` : `artists/${artist_id}/posts/${post_id}/comments/${comment_id}`)
+    console.log("request params are,", req.params, "path is", poster_id && poster_id !== "undefined" ? `user/${poster_id}/posts/${post_id}/comments/${comment_id}/replies/${reply_id}` : `artists/${artist_id}/posts/${post_id}/comments/${comment_id}/replies/${reply_id}`)
 
-    const commentDocRef = (poster_id && poster_id !== "undefined") ? 
-    admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
-    admin.firestore().doc(`artists/${artist_id}/posts/${post_id}/comments/${comment_id}`)
+    const replyDocRef = (poster_id && poster_id !== "undefined") ? 
+    admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}/replies/${reply_id}`) :
+    admin.firestore().doc(`artists/${artist_id}/posts/${post_id}/comments/${comment_id}/replies/${reply_id}`)
+
     try{
-      const commentSnapshot = await commentDocRef.get()
-      const commentDoc = commentSnapshot.data()
-  
-      const updatedReplies = commentDoc.replies.filter(reply => reply.reply_id !== reply_id)
-      commentDocRef.update({replies: updatedReplies})   
-
+      replyDocRef.delete()
       res.status(200).send("Reply deleted successfully")
     } catch(err){
       console.log(err)
@@ -676,28 +662,21 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     const { poster_id, artist_id, post_id, comment_id, reply_id } = req.params
     const { logged_user_id } = req.body
 
-    console.log("request params are,", req.params, "path is", poster_id && poster_id !== "undefined" ? `user/${poster_id}/posts/${post_id}/comments/${comment_id}` : `artists/${artist_id}/posts/${post_id}/comments/${comment_id}`)
+    console.log("request params are,", req.params, "path is", poster_id && poster_id !== "undefined" ? `user/${poster_id}/posts/${post_id}/comments/${comment_id}/replies/${reply_id}` : `artists/${artist_id}/posts/${post_id}/comments/${comment_id}/replies/${reply_id}`)
 
-    const commentDocRef = (poster_id && poster_id !== "undefined") ? 
-        admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}`) :
-        admin.firestore().doc(`artists/${artist_id}/posts/${post_id}/comments/${comment_id}`)
+    const replyDocRef = (poster_id && poster_id !== "undefined") ? 
+        admin.firestore().doc(`user/${poster_id}/posts/${post_id}/comments/${comment_id}/replies/${reply_id}`) :
+        admin.firestore().doc(`artists/${artist_id}/posts/${post_id}/comments/${comment_id}/replies/${reply_id}`)
     
     try {
-        const commentSnapshot = await commentDocRef.get()
-        const commentDoc = commentSnapshot.data()
-
-        const currentReply = commentDoc.replies.find(reply => reply.reply_id === reply_id)
+        const replySnapshot = await replyDocRef.get()
+        const replyDoc = replySnapshot.data()
         
-        const updatedLikes = currentReply.likes?.includes(logged_user_id) ?
-            currentReply.likes.filter((like) => like !== logged_user_id) :
-            [...(currentReply.likes || []), logged_user_id]
+        const updatedLikes = replyDoc.likes?.includes(logged_user_id) ?
+        replyDoc.likes.filter((like) => like !== logged_user_id) :
+        [...(replyDoc.likes || []), logged_user_id]
 
-        const updatedReply = {...currentReply, likes: updatedLikes}
-        const updatedReplies = commentDoc.replies.map(reply => {
-          return reply.reply_id === reply_id ? updatedReply : reply
-        })
-
-        await commentDocRef.update({ replies: updatedReplies })
+        await replyDoc.update({ likes: updatedLikes })
         res.status(200).send("Like toggled successfully")
     } catch(err) {
         console.log(err)
@@ -748,6 +727,41 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
 
       socket.on('disconnectFromComments', ({ post_id }) => {
           socket.leave(post_id)
+      })
+      } catch(err){
+        console.log(err)
+      }
+    })
+
+    //Replies
+
+    socket.on('listenToReplies', async ({ post_id, poster_id, artist_id, comment_id }) => {
+      try {
+        socket.join(comment_id)
+
+        console.log("joined room", comment_id)
+
+        const repliesCollectionRef = (poster_id && poster_id !== "undefined") ? 
+        admin.firestore().collection(`user/${poster_id}/posts/${post_id}/comments/${comment_id}/replies`) :
+        admin.firestore().collection(`artists/${artist_id}/posts/${post_id}/comments/${comment_id}/replies`)
+
+        let isFirstSnapshot = true
+        repliesCollectionRef.onSnapshot((snapshot) => {
+          const replies = snapshot.docChanges()
+            .filter(change => change.type === 'added' || change.type === 'modified')
+            .map(change => change.doc.data())
+          if (isFirstSnapshot) {
+            console.log('loading replies', replies)
+            io.to(post_id).emit('loadAllReplies', replies)
+            isFirstSnapshot = false
+          } else{
+            console.log('loading new reply', replies)
+            replies && io.to(post_id).emit('loadNewReply', replies)
+          } 
+        })
+
+      socket.on('disconnectFromReplies', ({ comment_id }) => {
+          socket.leave(comment_id)
       })
       } catch(err){
         console.log(err)
