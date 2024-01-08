@@ -580,13 +580,14 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     const { poster_id, artist_id } = newCommentData
 
     newCommentData.reply_id = uuidv4()
+
     try{
       const repliesCollectionRef = 
       (poster_id && poster_id !== "undefined") ? 
       admin.firestore().collection(`user/${poster_id}/posts/${post_id}/comments/${comment_id}/replies`) :
       admin.firestore().collection(`artists/${artist_id}/posts/${post_id}/comments/${comment_id}/replies`)
 
-      await repliesCollectionRef.doc(reply_id).set(newCommentData)
+      await repliesCollectionRef.doc(newCommentData.reply_id).set(newCommentData)
 
       res.status(201).send("Comment added successfully")
     } catch(err){
