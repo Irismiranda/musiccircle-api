@@ -445,31 +445,27 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     }
   })
 
-  app.post('/api/:user_id/post/:content_id', async (req, res) => {
-    const { user_id, content_id } = req.params
-    const { description, type } = req.body
-    const post_id = uuidv4()
+  exports.updateCommentsCount = functions.firestore
+  .document('user/{user_id}/posts/{post_id}/comments/{comment_id}')
+  .onWrite(async (change, context) => {
+    const postRef = admin.firestore().doc(`user/${context.params.user_id}/posts/${context.params.post_id}`)
 
-    const collectionRef = admin.firestore().collection(`user/${user_id}/posts`)
-    try{
-      await collectionRef.doc(post_id).set({
-        description: description,
-        type: type, 
-        id: content_id,
-        post_id: post_id,
-        user_id: user_id,
-      })
 
-      const updatedUserRef = admin.firestore().doc(`user/${user_id}`)
-      const updatedUserDoc = await updatedUserRef.get()
-      const user = updatedUserDoc.data()
+    const commentsSnapshot = await postRef.collection('comments').get()
+    const commentsCount = commentsSnapshot.size
 
-      res.send(user.userData)
-    } catch(err){
-      console.log(err)
-      res.status(500).send("Internal Server err")
-    }
+    return postRef.update({ commentsCount })
+  })
 
+  exports.updateRepliesCount = functions.firestore
+  .document('user/{user_id}/posts/{post_id}/comments/{comment_id}/replies/{reply_id}')
+  .onWrite(async (change, context) => {
+    const postRef = admin.firestore().doc(`user/${context.params.user_id}/posts/${context.params.post_id}`)
+    
+    const repliesSnapshot = await postRef.collection('comments').doc(context.params.comment_id).collection('replies').get()
+    const repliesCount = repliesSnapshot.size
+
+    return postRef.update({ repliesCount })
   })
 
   app.post('/api/:user_id/:post_id/toggle_hide_post', async (req, res) => {
