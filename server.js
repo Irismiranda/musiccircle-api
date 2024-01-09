@@ -398,7 +398,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     }
   })
 
-  app.post('/api/posts/:index', async (req, res) => {
+  app.get('/api/posts/:index', async (req, res) => {
     const { index } = req.params
     const { user_ids } = res.data
     console.log("user list is", user_ids)
