@@ -406,7 +406,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     const limit = 10
 
     try {
-        const postsQuery = firestore.collection('posts')
+        const postsQuery = admin.firestore().collection('posts')
             .where('poster_id', 'in', user_ids)
             .orderBy('timestamp', 'desc')
             .limit(parseInt(limit, 10))
@@ -416,7 +416,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
         const posts = snapshot.docs.map(doc => doc.data())
 
         if (posts.length < limit) {
-            const nonFollowedPostsQuery = firestore.collection('posts')
+            const nonFollowedPostsQuery = admin.firestore().collection('posts')
                 .where('poster_id', 'not-in', user_ids)
                 .orderBy('timestamp', 'desc')
                 .limit(parseInt(limit, 10))
