@@ -400,15 +400,15 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
 
   app.post('/api/posts/:index', async (req, res) => {
     const { index } = req.params
-    const { users } = req.query
+    const { user_ids } = req.query
     console.log("user list is", user_ids)
   
     const limit = 20
-    const user_ids = users.split(',')
+    const userIdsArr = user_ids.split(',')
 
     try {
         const postsQuery = firestore.collection('posts')
-            .where('poster_id', 'in', user_ids)
+            .where('poster_id', 'in', userIdsArr)
             .orderBy('timestamp', 'desc')
             .limit(parseInt(limit, 10))
             .startAfter(parseInt(index, 10))
@@ -418,7 +418,7 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
 
         if (posts.length < limit) {
             const nonFollowedPostsQuery = firestore.collection('posts')
-                .where('poster_id', 'not-in', user_ids)
+                .where('poster_id', 'not-in', userIdsArr)
                 .orderBy('timestamp', 'desc')
                 .limit(parseInt(limit, 10))
                 .startAfter(parseInt(index - posts.length, 10))
