@@ -398,7 +398,45 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     }
   })
 
-  app.get('/api/:user_id/posts', async (req, res) => {
+  app.get('/api/posts/:index', async (req, res) => {
+    const { index } = req.params
+    const { users } = req.query
+  
+    const limit = 20
+    const userIds = users.split(',')
+
+    try {
+        const postsQuery = firestore.collection('posts')
+            .where('poster_id', 'in', userIds)
+            .orderBy('timestamp', 'desc')
+            .limit(parseInt(limit, 10))
+            .startAfter(parseInt(index, 10))
+
+        const snapshot = await postsQuery.get()
+        const posts = snapshot.docs.map(doc => doc.data())
+
+        if (posts.length < limit) {
+            const nonFollowedPostsQuery = firestore.collection('posts')
+                .where('poster_id', 'not-in', userIds)
+                .orderBy('timestamp', 'desc')
+                .limit(parseInt(limit, 10))
+                .startAfter(parseInt(index - posts.length, 10))
+
+            const nonFollowedSnapshot = await nonFollowedPostsQuery.get()
+            const nonFollowedPosts = nonFollowedSnapshot.docs.map(doc => doc.data())
+
+            posts.push(...nonFollowedPosts)
+        }
+
+        res.json({ posts })
+  
+    } catch (error) {
+        console.error('Error getting posts:', error)
+        res.status(500).json({ error: 'Internal Server Error' })
+    }
+})
+
+  app.get('/api/:user_id/user_posts', async (req, res) => {
     const { user_id } = req.params
     const userDocRef = admin.firestore().doc(`user/${user_id}`)
     const postsCollectionRef = userDocRef.collection('posts')
@@ -443,29 +481,6 @@ app.get('/api/user/data/:category/:id', async (req, res)  => {
     } catch(err){
       console.log(err)
     }
-  })
-
-  exports.updateCommentsCount = functions.firestore
-  .document('user/{user_id}/posts/{post_id}/comments/{comment_id}')
-  .onWrite(async (change, context) => {
-    const postRef = admin.firestore().doc(`user/${context.params.user_id}/posts/${context.params.post_id}`)
-
-
-    const commentsSnapshot = await postRef.collection('comments').get()
-    const commentsCount = commentsSnapshot.size
-
-    return postRef.update({ commentsCount })
-  })
-
-  exports.updateRepliesCount = functions.firestore
-  .document('user/{user_id}/posts/{post_id}/comments/{comment_id}/replies/{reply_id}')
-  .onWrite(async (change, context) => {
-    const postRef = admin.firestore().doc(`user/${context.params.user_id}/posts/${context.params.post_id}`)
-    
-    const repliesSnapshot = await postRef.collection('comments').doc(context.params.comment_id).collection('replies').get()
-    const repliesCount = repliesSnapshot.size
-
-    return postRef.update({ repliesCount })
   })
 
   app.post('/api/:user_id/:post_id/toggle_hide_post', async (req, res) => {
